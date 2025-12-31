@@ -1,0 +1,14 @@
+@import 'tailwindcss' source(none);
+
+/* scan liquid files */
+@source '../../layout/*.liquid';
+@source '../../sections/*.liquid';
+@source '../../snippets/*.liquid';
+
+@theme {
+  --color-brand: #121212;
+}
+
+[x-cloak] {
+  display: none !important;
+}

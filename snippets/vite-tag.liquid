@@ -1,0 +1,8 @@
+{%- liquid
+  assign css_file = 'app.css'
+  assign js_file = 'app.js'
+-%}
+
+<div class=" mx-0 h-6 max-h-4 max-w-1/2 bg-amber-50 pt-1   pb-0 text-2xl">Hello World</div>
+<link rel="stylesheet" href="{{ css_file | asset_url }}">
+<script src="{{ js_file | asset_url }}" defer></script>
