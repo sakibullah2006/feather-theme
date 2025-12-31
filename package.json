@@ -1,6 +1,7 @@
 {
   "name": "dawn-feather-starter",
   "version": "1.0.0",
+  "type": "module",
   "description": "[![Build status](https://github.com/shopify/dawn/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Shopify/dawn/actions/workflows/ci.yml?query=branch%3Amain)\r [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?color=informational)](/.github/CONTRIBUTING.md)",
   "main": "index.js",
   "scripts": {
@@ -12,7 +13,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@shopify/prettier-plugin-liquid": "^1.10.0",
     "@tailwindcss/vite": "^4.1.18",
     "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",

@@ -1,9 +1,9 @@
-@import 'tailwindcss' source(none);
+@import "tailwindcss" source(none);
 
 /* scan liquid files */
-@source '../../layout/*.liquid';
-@source '../../sections/*.liquid';
-@source '../../snippets/*.liquid';
+@source "../../layout/*.liquid";
+@source "../../sections/*.liquid";
+@source "../../snippets/*.liquid";
 
 @theme {
   --color-brand: #121212;

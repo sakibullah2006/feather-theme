@@ -12,9 +12,6 @@ importers:
         specifier: ^3.15.3
         version: 3.15.3
     devDependencies:
-      '@shopify/prettier-plugin-liquid':
-        specifier: ^1.10.0
-        version: 1.10.0(prettier@3.7.4)
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@7.3.0(jiti@2.6.1)(lightningcss@1.30.2))
@@ -901,12 +898,14 @@ snapshots:
     dependencies:
       line-column: 1.0.2
       ohm-js: 17.3.0
+    optional: true
 
   '@shopify/prettier-plugin-liquid@1.10.0(prettier@3.7.4)':
     dependencies:
       '@shopify/liquid-html-parser': 2.9.0
       html-styles: 1.0.0
       prettier: 3.7.4
+    optional: true
 
   '@tailwindcss/node@4.1.18':
     dependencies:
@@ -1060,13 +1059,16 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  html-styles@1.0.0: {}
+  html-styles@1.0.0:
+    optional: true
 
-  isarray@1.0.0: {}
+  isarray@1.0.0:
+    optional: true
 
   isobject@2.1.0:
     dependencies:
       isarray: 1.0.0
+    optional: true
 
   jiti@2.6.1: {}
 
@@ -1123,6 +1125,7 @@ snapshots:
     dependencies:
       isarray: 1.0.0
       isobject: 2.1.0
+    optional: true
 
   magic-string@0.30.21:
     dependencies:
@@ -1132,7 +1135,8 @@ snapshots:
 
   node-releases@2.0.27: {}
 
-  ohm-js@17.3.0: {}
+  ohm-js@17.3.0:
+    optional: true
 
   picocolors@1.1.1: {}
 
