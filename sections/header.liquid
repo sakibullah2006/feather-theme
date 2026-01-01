@@ -6,22 +6,6 @@
     assign has_menu = false
   endif
 
-  if section.settings.enable_country_selector and localization.available_countries.size > 1
-    assign enable_country_selector = true
-  else
-    assign enable_country_selector = false
-  endif
-  if section.settings.enable_language_selector and localization.available_languages.size > 1
-    assign enable_language_selector = true
-  else
-    assign enable_language_selector = false
-  endif
-  if enable_country_selector or enable_language_selector
-    assign localization_enabled = true
-  else
-    assign localization_enabled = false
-  endif
-
   assign show_account = shop.customer_accounts_enabled
   if section.settings.sticky_header_type != 'none'
     assign sticky_enabled = true
@@ -65,13 +49,15 @@
             {%- if settings.logo != blank -%}
               {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
               {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+              {%- assign logo_height_class = section.settings.logo_icons_size | replace: 'size-', 'h-' -%}
+              {%- assign logo_size_class = logo_height_class | append: ' w-auto object-contain' -%}
               {% capture sizes %}(max-width: {{ settings.logo_width | times: 2 }}px) 40vw, {{ settings.logo_width }}px{% endcapture %}
               {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
               {{
                 settings.logo
                 | image_url: width: 600
                 | image_tag:
-                  class: 'h-10 w-auto object-contain',
+                  class: logo_size_class,
                   widths: widths,
                   height: logo_height,
                   width: settings.logo_width,
@@ -122,27 +108,6 @@
         {%- endif -%}
 
         <div class="flex items-center justify-end gap-3 min-w-40">
-          {%- if localization_enabled -%}
-            <div class="hidden md:flex items-center gap-2 text-xs font-medium">
-              {%- if enable_country_selector -%}
-                <localization-form class="relative" data-prevent-hide>
-                  {%- form 'localization', id: 'HeaderCountryForm', class: 'flex items-center gap-1' -%}
-                    <span class="sr-only" id="HeaderCountryLabel">{{ 'localization.country_label' | t }}</span>
-                    {%- render 'country-localization', localPosition: 'HeaderCountry' -%}
-                  {%- endform -%}
-                </localization-form>
-              {%- endif -%}
-              {%- if enable_language_selector -%}
-                <localization-form class="relative" data-prevent-hide>
-                  {%- form 'localization', id: 'HeaderLanguageForm', class: 'flex items-center gap-1' -%}
-                    <span class="sr-only" id="HeaderLanguageLabel">{{ 'localization.language_label' | t }}</span>
-                    {%- render 'language-localization', localPosition: 'HeaderLanguage' -%}
-                  {%- endform -%}
-                </localization-form>
-              {%- endif -%}
-            </div>
-          {%- endif -%}
-
           <a
             href="{{ routes.search_url }}"
             class="inline-flex items-center justify-center w-10 h-10 rounded-md border border-current/15 hover:bg-current/5 transition"
@@ -252,34 +217,6 @@
               </svg>
               <span class="text-sm">Search</span>
             </a>
-
-            {%- if localization_enabled -%}
-              <div class="space-y-2 text-sm">
-                {%- if enable_country_selector -%}
-                  <localization-form data-prevent-hide>
-                    {%- form 'localization',
-                      id: 'MobileHeaderCountryForm',
-                      class: 'flex items-center justify-between rounded-md border border-current/15 px-3 py-2'
-                    -%}
-                      <span>{{ 'localization.country_label' | t }}</span>
-                      {%- render 'country-localization', localPosition: 'HeaderCountry' -%}
-                    {%- endform -%}
-                  </localization-form>
-                {%- endif -%}
-                {%- if enable_language_selector -%}
-                  <localization-form data-prevent-hide>
-                    {%- form 'localization',
-                      id: 'MobileHeaderLanguageForm',
-                      class: 'flex items-center justify-between rounded-md border border-current/15 px-3 py-2'
-                    -%}
-                      <span>{{ 'localization.language_label' | t }}</span>
-                      {%- render 'language-localization', localPosition: 'HeaderLanguage' -%}
-                    {%- endform -%}
-                  </localization-form>
-                {%- endif -%}
-              </div>
-            {%- endif -%}
-
             <nav class="space-y-2">
               {%- for link in menu.links -%}
                 {% if link.links.size > 0 %}
@@ -393,9 +330,27 @@
     },
     { "type": "checkbox", "id": "show_line_separator", "default": true, "label": "Show bottom border" },
     { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
-    { "type": "checkbox", "id": "enable_country_selector", "default": true, "label": "Enable country selector" },
-    { "type": "checkbox", "id": "enable_language_selector", "default": true, "label": "Enable language selector" },
     { "type": "checkbox", "id": "enable_customer_avatar", "default": true, "label": "Show customer avatar" },
+    {
+      "type": "select",
+      "id": "logo_icons_size",
+      "label": "Logo size",
+      "default": "size-5",
+      "options": [
+        {
+          "value": "size-5",
+          "label": "Small"
+        },
+        {
+          "value": "size-6",
+          "label": "Medium"
+        },
+        {
+          "value": "size-10",
+          "label": "Large"
+        }
+      ]
+    },
     {
       "type": "range",
       "id": "padding_top",
