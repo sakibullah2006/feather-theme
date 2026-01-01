@@ -11,6 +11,16 @@
   "name": "t:sections.header.name",
   "type": "header",
   "sections": {
+    "topbar": {
+      "type": "topbar",
+      "settings": {
+        "color_scheme": "scheme-2",
+        "show_line_separator": true,
+        "social_icons_size": "size-5",
+        "show_social": true,
+        "topbar_menu": "topbar"
+      }
+    },
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
@@ -34,10 +44,7 @@
         "auto_rotate": false,
         "change_slides_speed": 5,
         "color_scheme": "scheme-2",
-        "show_line_separator": true,
-        "social_icons_size": "w-5 h-5",
-        "show_social": true,
-        "topbar_menu": "topbar"
+        "show_line_separator": true
       }
     },
     "header": {
@@ -58,5 +65,5 @@
       }
     }
   },
-  "order": ["announcement-bar", "header"]
+  "order": ["topbar", "announcement-bar", "header"]
 }

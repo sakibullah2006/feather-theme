@@ -22,11 +22,17 @@
   }
 }
 
-@layer components {
+@layer base {
   a {
     @apply cursor-pointer;
   }
 
+  button {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
   .container-lg {
     @apply mx-auto w-full max-w-[1920];
   }

@@ -1,0 +1,126 @@
+{%- liquid
+  assign has_social = false
+  assign social_list = 'facebook,instagram,youtube,tiktok,twitter,pinterest,snapchat,tumblr,vimeo' | split: ','
+  for social in social_list
+    assign link_key = 'social_' | append: social | append: '_link'
+    if settings[link_key] != blank
+      assign has_social = true
+      break
+    endif
+  endfor
+
+  if section.settings.show_social and has_social
+    assign show_social_icons = true
+  else
+    assign show_social_icons = false
+  endif
+
+  assign topbar_handle = section.settings.topbar_menu
+  assign show_topbar_menu = false
+  if topbar_handle != blank and linklists[topbar_handle]
+    if linklists[topbar_handle].links.size > 0
+      assign show_topbar_menu = true
+    endif
+  endif
+-%}
+
+<div
+  class="min-h-10 z-10 color-{{ section.settings.color_scheme }} gradient"
+  style="background: rgb(var(--color-background)); color: rgb(var(--color-foreground));"
+>
+  <div class="container-lg">
+    <div class="flex items-center justify-between px-4 sm:px-6 lg:px-10 py-2 gap-4 w-full">
+      {% comment %} Socials {% endcomment %}
+      <div class="flex justify-center items-center min-w-12">
+        {%- if show_social_icons -%}
+          {%- render 'social-icons', icon_size_class: section.settings.social_icons_size -%}
+        {%- endif -%}
+      </div>
+
+      {% comment %} Links {% endcomment %}
+      <div class="flex items-center justify-end min-w-12">
+        {%- if show_topbar_menu -%}
+          <nav class="flex items-center  divide-x divide-current/20">
+            {%- for link in linklists[topbar_handle].links -%}
+              <a
+                href="{{ link.url }}"
+                class="hover:opacity-75   transition-opacity whitespace-nowrap {% if forloop.first %}pr-2{% else %}px-2{% endif %}"
+              >
+                <span class="font-sans text-[12px]">
+                  {{ link.title }}
+                </span>
+              </a>
+            {%- endfor -%}
+          </nav>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Topbar",
+  "class": "topbar-section",
+  "enabled_on": { "groups": ["header"] },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_line_separator",
+      "default": true,
+      "label": "Show bottom border"
+    },
+    {
+      "type": "header",
+      "content": "Social Icons"
+    },
+    {
+      "type": "select",
+      "id": "social_icons_size",
+      "label": "Social icons size",
+      "default": "size-5",
+      "options": [
+        {
+          "value": "size-5",
+          "label": "Small"
+        },
+        {
+          "value": "size-6",
+          "label": "Medium"
+        },
+        {
+          "value": "size-10",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "default": true,
+      "label": "Show social icons"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "topbar_menu",
+      "label": "Topbar menu",
+      "info": "Select a menu to display in the topbar"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Topbar"
+    }
+  ]
+}
+{% endschema %}

@@ -1,84 +1,28 @@
-{%- liquid
-  assign has_social = false
-  assign social_list = 'facebook,instagram,youtube,tiktok,twitter,pinterest,snapchat,tumblr,vimeo' | split: ','
-  for social in social_list
-    assign link_key = 'social_' | append: social | append: '_link'
-    if settings[link_key] != blank
-      assign has_social = true
-      break
-    endif
-  endfor
-
-  assign has_localization = false
-  if section.settings.enable_country_selector and localization.available_countries.size > 1 or section.settings.enable_language_selector and localization.available_languages.size > 1
-    assign has_localization = true
-  endif
-
-  assign grid_cols = 1
-  if has_social and has_localization and section.blocks.size > 0
-    assign grid_cols = 3
-  elsif has_social and section.blocks.size > 0 or has_localization and section.blocks.size > 0
-    assign grid_cols = 2
-  endif
-
-  if section.settings.show_social and has_social
-    assign show_social_icons = true
-  else
-    assign show_social_icons = false
-  endif
-  assign topbar_handle = section.settings.topbar_menu
-  assign show_topbar_menu = false
-  if topbar_handle != blank and linklists[topbar_handle]
-    if linklists[topbar_handle].links.size > 0
-      assign show_topbar_menu = true
-    endif
-  endif
--%}
-
 <div
-  class="min-h-10 z-10 color-{{ section.settings.color_scheme }} gradient "
+  class="min-h-10 z-10 color-{{ section.settings.color_scheme }} gradient"
   style="background: rgb(var(--color-background)); color: rgb(var(--color-foreground));"
 >
-  <div class="container-lg">
-    <div class="flex items-center px-4 sm:px-6 lg:px-10 py-2 gap-4 w-full">
-      {% comment %}  Socials {% endcomment %}
-      <div class="hidden lg:flex justify-center items-center min-w-[48px]">
-        {%- if show_social_icons -%}
-          {%- render 'social-icons', icon_size_class: section.settings.social_icons_size -%}
-        {%- endif -%}
-      </div>
-
-      {% comment %}  Announcements {% endcomment %}
+  <div class="max-w-5xl mx-auto w-full">
+    <div class="flex items-center justify-center px-4 sm:px-6 lg:px-10 py-2 w-full">
       {%- if section.blocks.size > 0 -%}
-        <div class="flex-1 min-w-0 w-full text-center">
+        <div class="w-full text-center">
           {%- if section.blocks.size == 1 -%}
-            <div class="relative w-full overflow-hidden" {{ section.blocks.first.shopify_attributes }}>
-              <div class="flex animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused] whitespace-nowrap">
-                {%- assign block = section.blocks.first -%}
-                {%- if block.settings.text != blank -%}
-                  {%- if block.settings.link != blank -%}
-                    <a
-                      href="{{ block.settings.link }}"
-                      class="inline-block w-full px-8 text-xs sm:text-sm font-medium hover:opacity-75 transition-opacity"
-                    >
-                      {{- block.settings.text -}}
-                    </a>
-                    <a
-                      href="{{ block.settings.link }}"
-                      class="inline-block w-full px-8 text-xs sm:text-sm font-medium hover:opacity-75 transition-opacity"
-                    >
-                      {{- block.settings.text -}}
-                    </a>
-                  {%- else -%}
-                    <span class="inline-block w-full px-8 text-xs sm:text-sm font-medium">
-                      {{- block.settings.text -}}
-                    </span>
-                    <span class="inline-block w-full px-8 text-xs sm:text-sm font-medium">
-                      {{- block.settings.text -}}
-                    </span>
-                  {%- endif -%}
+            <div class="relative w-full" {{ section.blocks.first.shopify_attributes }}>
+              {%- assign block = section.blocks.first -%}
+              {%- if block.settings.text != blank -%}
+                {%- if block.settings.link != blank -%}
+                  <a
+                    href="{{ block.settings.link }}"
+                    class="text-xs sm:text-sm font-medium hover:opacity-75 transition-opacity"
+                  >
+                    {{- block.settings.text -}}
+                  </a>
+                {%- else -%}
+                  <span class="text-xs sm:text-sm font-medium">
+                    {{- block.settings.text -}}
+                  </span>
                 {%- endif -%}
-              </div>
+              {%- endif -%}
             </div>
           {%- else -%}
             <div
@@ -90,47 +34,44 @@
               <button
                 type="button"
                 @click="prev()"
-                class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-6 h-6 flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity"
+                class="absolute -left-10 top-1/2 -translate-y-1/2 z-10 size-10 flex items-center justify-center hover:bg-current/7 rounded-full transition-opacity"
                 aria-label="Previous"
               >
-                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                  role="img"
+                  width="24px"
+                  height="24px"
+                  fill="none"
+                >
+                  <path stroke="currentColor" stroke-width="1.5" d="M15.525 18.966L8.558 12l6.967-6.967"></path>
                 </svg>
               </button>
 
-              <div class="px-6 min-h-8 flex items-center justify-center overflow-hidden">
+              <div class="min-h-10 flex items-center justify-center">
                 <div class="relative w-full">
                   {%- for block in section.blocks -%}
                     <div
                       x-show="current === {{ forloop.index0 }}"
-                      class="w-full transition-opacity duration-500 overflow-hidden"
+                      class="w-full transition-opacity duration-500"
                       :class="current === {{ forloop.index0 }} ? 'opacity-100' : 'opacity-0'"
                       {{ block.shopify_attributes }}
                     >
                       {%- if block.settings.text != blank -%}
-                        <div class="flex animate-[marquee_20s_linear_infinite] hover:[animation-play-state:paused] whitespace-nowrap">
-                          {%- if block.settings.link != blank -%}
-                            <a
-                              href="{{ block.settings.link }}"
-                              class="inline-block w-full px-8 text-xs sm:text-sm font-medium hover:opacity-75 transition-opacity"
-                            >
-                              {{- block.settings.text -}}
-                            </a>
-                            <a
-                              href="{{ block.settings.link }}"
-                              class="inline-block w-full px-8 text-xs sm:text-sm font-medium hover:opacity-75 transition-opacity"
-                            >
-                              {{- block.settings.text -}}
-                            </a>
-                          {%- else -%}
-                            <span class="inline-block w-full px-8 text-xs sm:text-sm font-medium">
-                              {{- block.settings.text -}}
-                            </span>
-                            <span class="inline-block w-full px-8 text-xs sm:text-sm font-medium">
-                              {{- block.settings.text -}}
-                            </span>
-                          {%- endif -%}
-                        </div>
+                        {%- if block.settings.link != blank -%}
+                          <a
+                            href="{{ block.settings.link }}"
+                            class="text-xs sm:text-sm font-medium hover:opacity-75 transition-opacity"
+                          >
+                            {{- block.settings.text -}}
+                          </a>
+                        {%- else -%}
+                          <span class="text-xs sm:text-sm font-medium">
+                            {{- block.settings.text -}}
+                          </span>
+                        {%- endif -%}
                       {%- endif -%}
                     </div>
                   {%- endfor -%}
@@ -140,33 +81,25 @@
               <button
                 type="button"
                 @click="next()"
-                class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-6 h-6 flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity"
+                class="absolute -right-10 top-1/2 -translate-y-1/2 z-10 size-10 flex items-center justify-center  hover:bg-current/7 rounded-full transition-opacity"
                 aria-label="Next"
               >
-                <svg class="w-3 h-3 rotate-90" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                  role="img"
+                  width="24px"
+                  height="24px"
+                  fill="none"
+                >
+                  <path stroke="currentColor" stroke-width="1.5" d="M8.474 18.966L15.44 12 8.474 5.033"></path>
                 </svg>
               </button>
             </div>
           {%- endif -%}
         </div>
       {%- endif -%}
-
-      {% comment %}  links {% endcomment %}
-      <div class="hidden md:flex items-center justify-end min-w-[48px]">
-        {%- if show_topbar_menu -%}
-          <nav class="flex items-center text-xs font-medium divide-x divide-current/20">
-            {%- for link in linklists[topbar_handle].links -%}
-              <a
-                href="{{ link.url }}"
-                class="hover:opacity-75 transition-opacity whitespace-nowrap {% if forloop.first %}pr-2{% else %}px-2{% endif %}"
-              >
-                {{ link.title }}
-              </a>
-            {%- endfor -%}
-          </nav>
-        {%- endif -%}
-      </div>
     </div>
   </div>
 </div>
@@ -205,42 +138,6 @@
       "id": "show_line_separator",
       "default": true,
       "label": "Show bottom border"
-    },
-    {
-      "type": "header",
-      "content": "Additional Features"
-    },
-    {
-      "type": "select",
-      "id": "social_icons_size",
-      "label": "Social icons size",
-      "default": "size-5",
-      "options": [
-        {
-          "value": "size-5",
-          "label": "Small"
-        },
-        {
-          "value": "size-6",
-          "label": "Medium"
-        },
-        {
-          "value": "size-10",
-          "label": "Large"
-        }
-      ]
-    },
-    {
-      "type": "checkbox",
-      "id": "show_social",
-      "default": true,
-      "label": "Show social icons"
-    },
-    {
-      "type": "link_list",
-      "id": "topbar_menu",
-      "label": "Topbar menu",
-      "info": "Select a menu to display in the topbar"
     }
   ],
   "blocks": [
