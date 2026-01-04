@@ -4,6 +4,7 @@ import collapse from "@alpinejs/collapse";
 import focus from "@alpinejs/focus";
 import slider from "./slider.js";
 import collapsible from "./header/collapsible.js";
+import dropdownMenu from "./header/dropdown-menu.js";
 import anchor from "@alpinejs/anchor";
 
 window.Alpine = Alpine;
@@ -16,4 +17,5 @@ Alpine.plugin(anchor);
 // data
 Alpine.data("slider", slider);
 Alpine.data("collapsible", collapsible);
+Alpine.data("dropdownMenu", dropdownMenu);
 Alpine.start();
