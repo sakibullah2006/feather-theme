@@ -216,18 +216,16 @@
 
         {% comment %} Account Icon {% endcomment %}
         {%- if show_account -%}
-          <a
-            href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
-            class="inline-flex items-center justify-center w-10 h-10 rounded-full border-current/15 hover:bg-current/5 transition"
-            aria-label="Account"
-            rel="nofollow"
-          >
-            {%- if section.settings.enable_customer_avatar and customer and customer.has_avatar? -%}
-              <span class="inline-flex size-6 overflow-hidden rounded-full">{{ customer | avatar }}</span>
-            {%- else -%}
+          <div class="lg:hidden">
+            <a
+              href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+              class="inline-flex items-center justify-center w-10 h-10 rounded-full border-current/15 hover:bg-current/5 transition"
+              aria-label="{%- if customer -%}Account{%- else -%}Sign In{%- endif -%}"
+              rel="nofollow"
+            >
               {% render 'account-logo', class: 'size-6' %}
-            {%- endif -%}
-          </a>
+            </a>
+          </div>
         {%- endif -%}
 
         {% comment %} WishList Icon {% endcomment %}
