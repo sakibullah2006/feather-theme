@@ -6,48 +6,39 @@
       "type": "footer",
       "blocks": {
         "footer-0": {
-          "type": "link_list",
+          "type": "footer-menu",
           "settings": {
-            "heading": "Quick links",
+            "heading": "About Us",
             "menu": "footer"
           }
         },
         "footer-1": {
-          "type": "link_list",
+          "type": "footer-menu",
           "settings": {
-            "heading": "Info",
+            "heading": "Categories",
             "menu": "footer"
-          }
-        },
-        "footer-2": {
-          "type": "text",
-          "settings": {
-            "heading": "Our mission",
-            "subtext": "<p>Share contact information, store details, and brand content with your customers.<\/p>"
           }
         }
       },
-      "block_order": [
-        "footer-0",
-        "footer-1",
-        "footer-2"
-      ],
+      "block_order": ["footer-0", "footer-1"],
       "settings": {
-        "color_scheme": "scheme-1",
-        "newsletter_enable": true,
-        "newsletter_heading": "Subscribe to our emails",
+        "show_contact_info": true,
+        "use_theme_logo": true,
+        "logo_width": 80,
+        "address": "30 Buttonwood St.Pataskala OH 43062",
+        "phone": "(+1)-613-333-0101",
+        "email": "contact@company.com",
         "show_social": true,
+        "newsletter_enable": true,
+        "newsletter_heading": "Newsletter Sign Up",
+        "newsletter_description": "Subscribe to our newsletter and get 10% off your first purchase",
         "enable_country_selector": false,
         "enable_language_selector": false,
         "payment_enable": true,
         "show_policy": false,
-        "margin_top": 48,
-        "padding_top": 36,
-        "padding_bottom": 36
+        "margin_top": 48
       }
     }
   },
-  "order": [
-    "footer"
-  ]
+  "order": ["footer"]
 }
