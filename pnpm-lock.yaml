@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@alpinejs/anchor':
+        specifier: ^3.15.3
+        version: 3.15.3
       '@alpinejs/collapse':
         specifier: ^3.15.3
         version: 3.15.3
@@ -47,6 +50,9 @@ importers:
         version: 7.3.0(jiti@2.6.1)(lightningcss@1.30.2)
 
 packages:
+
+  '@alpinejs/anchor@3.15.3':
+    resolution: {integrity: sha512-yBEcIhZhliXI/Vs/SZfBXhxVaCBDYKXqIR3XSIDHW0OKVi8p1Bn4qxs+rX0Gi/sjqVgM2HD1zhGGU2O1faF5jA==}
 
   '@alpinejs/collapse@3.15.3':
     resolution: {integrity: sha512-nheS20BsFY1Eh1nyW0YNs7RMOiO/LipCTltEplbWunTcgdCeZtD7YPUim5xtbhc+0nJP4SkR7G0axRXaRf4m1g==}
@@ -760,6 +766,8 @@ packages:
         optional: true
 
 snapshots:
+
+  '@alpinejs/anchor@3.15.3': {}
 
   '@alpinejs/collapse@3.15.3': {}
 
