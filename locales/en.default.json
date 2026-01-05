@@ -281,7 +281,10 @@
       "cart_count": {
         "one": "{{ count }} item",
         "other": "{{ count }} items"
-      }
+      },
+      "featured_collection": "Featured collection",
+      "featured_products": "Featured products",
+      "view_collection": "View collection"
     },
     "cart": {
       "title": "Your cart",

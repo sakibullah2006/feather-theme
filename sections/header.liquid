@@ -79,7 +79,11 @@
       </div>
 
       {%- if has_menu -%}
-        <nav class="hidden lg:flex flex-1 items-center justify-center gap-6 text-sm font-medium">
+        <nav
+          class="hidden lg:flex flex-1 items-center justify-center gap-6 text-sm font-medium"
+          x-data="{ openId: null, setOpen(id) { this.openId = id }, clear() { this.openId = null } }"
+          @mouseleave="clear()"
+        >
           {%- for link in menu.links -%}
             {%- assign has_children = false -%}
             {%- assign has_mega_menu = false -%}
@@ -101,101 +105,32 @@
               {% endif %}
               class="relative"
             >
-              {%- if has_children -%}
-                <button
-                  @mouseenter="openMenu()"
-                  class="flex items-center gap-1 px-3 py-2 border-b-2 border-transparent hover:border-gray-900 transition-colors duration-200"
-                  :class="open ? 'border-gray-900' : ''"
-                >
-                  <span class="text-[15px] font-medium">{{ link.title }}</span>
-                </button>
-              {%- else -%}
+              <div @mouseenter="setOpen('{{ link.handle }}')">
                 <a
                   href="{{ link.url }}"
+                  :class="openId === '{{ link.handle }}' ? 'border-gray-900' : ''"
                   class="flex items-center gap-1 px-3 py-2 border-b-2 border-transparent hover:border-gray-900 transition-colors duration-200"
                 >
                   <span class="text-[15px] font-medium">{{ link.title }}</span>
                 </a>
-              {%- endif -%}
 
-              {%- if has_children -%}
-                {%- if has_mega_menu -%}
-                  {%- comment %} MEGA MENU - Full Width {%- endcomment %}
-                  <div
-                    x-show="open"
-                    @mouseenter="openMenu()"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform translate-y-2"
-                    x-transition:enter-end="opacity-100 transform translate-y-0"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 transform translate-y-0"
-                    x-transition:leave-end="opacity-0 transform translate-y-2"
-                    x-cloak
-                    class="fixed left-0 right-0 w-screen z-50"
-                    style="top: calc(var(--header-height, 64px) + 35px);"
-                    data-dropdown="{{ link.handle }}"
-                  >
-                    <div class="bg-white text-gray-900 shadow-lg">
-                      <div class="container-lg mx-auto px-8 py-14">
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-16 gap-y-10">
-                          {%- for child in link.links -%}
-                            <div
-                              style="animation-delay: {{ forloop.index0 | times: 100 }}ms;"
-                              class="animate-[slideUp_300ms_ease-out_both]"
-                            >
-                              <h3
-                                class="text-[15px] font-medium text-gray-900 mb-3 tracking-tight"
-                              >
-                                <a href="{{ child.url }}">{{ child.title }} </a>
-                              </h3>
-                              {%- if child.links.size > 0 -%}
-                                <ul class="gap-2">
-                                  {%- for grandchild in child.links -%}
-                                    <li>
-                                      <a
-                                        href="{{ grandchild.url }}"
-                                        class="text-[14px] text-gray-500 hover:text-gray-900 transition-colors duration-150 block py-0.5"
-                                      >
-                                        {{ grandchild.title }}
-                                      </a>
-                                    </li>
-                                  {%- endfor -%}
-                                </ul>
-                              {%- endif -%}
-                            </div>
-                          {%- endfor -%}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                {%- else -%}
-                  {%- comment %} SIMPLE DROPDOWN {%- endcomment %}
-                  <div
-                    x-show="open"
-                    @mouseenter="openMenu()"
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 transform translate-y-1"
-                    x-transition:enter-end="opacity-100 transform translate-y-0"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 transform translate-y-0"
-                    x-transition:leave-end="opacity-0 transform translate-y-1"
-                    x-cloak
-                    class="absolute left-0 top-12 pt-2  min-w-60 rounded-sm  bg-white text-current/30 shadow-xl z-50 overflow-hidden"
-                    data-dropdown="{{ link.handle }}"
-                  >
-                    <div class="">
-                      {%- for child in link.links -%}
-                        <a
-                          href="{{ child.url }}"
-                          class="block px-5 py-3 text-[14px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 whitespace-nowrap"
-                        >
-                          {{ child.title }}
-                        </a>
-                      {%- endfor -%}
-                    </div>
-                  </div>
+                {%- if has_children -%}
+                  {%- if has_mega_menu -%}
+                    {%- comment %} MEGA MENU - Full Width {%- endcomment %}
+                    {% render 'mega-menu',
+                      link: link,
+                      show_featured_content: section.settings.show_mega_menu_content,
+                      content_type: section.settings.mega_menu_content_type,
+                      featured_collection: section.settings.mega_menu_collection,
+                      featured_products: section.settings.mega_menu_products,
+                      open_id: link.handle
+                    %}
+                  {%- else -%}
+                    {%- comment %} SIMPLE DROPDOWN {%- endcomment %}
+                    {% render 'dropdown-menu', link: link, open_id: link.handle %}
+                  {%- endif -%}
                 {%- endif -%}
-              {%- endif -%}
+              </div>
             </div>
           {%- endfor -%}
         </nav>
@@ -299,6 +234,44 @@
   "max_blocks": 3,
   "settings": [
     { "type": "link_list", "id": "menu", "default": "main-menu", "label": "Main menu" },
+    {
+      "type": "header",
+      "content": "Mega menu featured content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mega_menu_content",
+      "label": "Show featured content in mega menu",
+      "default": false,
+      "info": "Display featured products or collection in mega menu dropdowns"
+    },
+    {
+      "type": "select",
+      "id": "mega_menu_content_type",
+      "label": "Content type",
+      "options": [
+        { "value": "collection", "label": "Collection" },
+        { "value": "products", "label": "Featured products" }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "collection",
+      "id": "mega_menu_collection",
+      "label": "Featured collection",
+      "info": "Shows collection image and info when content type is Collection"
+    },
+    {
+      "type": "product_list",
+      "id": "mega_menu_products",
+      "label": "Featured products",
+      "limit": 3,
+      "info": "Choose up to 3 products to feature"
+    },
+    {
+      "type": "header",
+      "content": "Header settings"
+    },
     {
       "type": "select",
       "id": "sticky_header_type",

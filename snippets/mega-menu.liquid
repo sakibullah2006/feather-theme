@@ -1,0 +1,146 @@
+{% doc %}
+  Renders a mega menu dropdown with full-width layout for navigation links with grandchildren.
+
+  Displays menu items in a grid layout with category headers and sub-items. Optionally shows
+  featured content (collection or products) when the link is a collection link. Includes
+  animation effects for smooth dropdown transitions and staggered item animations.
+
+  @param {link} link - The parent link object containing child and grandchild links
+  @param {string} [header_height] - CSS variable for header height positioning (default: 64px)
+  @param {boolean} [show_featured_content] - Whether to show featured content in the mega menu
+  @param {string} [content_type] - Type of content to show: 'collection' or 'products'
+  @param {collection} [featured_collection] - Collection to feature when content_type is 'collection'
+  @param {product[]} [featured_products] - Products to feature (max 3)
+
+  @example
+  {% render 'mega-menu', link: link, show_featured_content: true, content_type: 'collection', featured_collection: collections['featured'] %}
+{% enddoc %}
+
+{%- liquid
+  assign products_count = 0
+  if featured_products
+    assign products_count = featured_products.size
+  endif
+
+  assign show_content = false
+  if show_featured_content
+    if content_type == 'collection' and featured_collection
+      assign show_content = true
+    elsif content_type == 'products' and products_count > 0
+      assign show_content = true
+    endif
+  endif
+-%}
+
+<div
+  x-show="openId === '{{ open_id }}'"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0 transform translate-y-2"
+  x-transition:enter-end="opacity-100 transform translate-y-0"
+  x-transition:leave="transition ease-in duration-200"
+  x-transition:leave-start="opacity-100 transform translate-y-0"
+  x-transition:leave-end="opacity-0 transform translate-y-2"
+  style="display: none; top: calc(var(--header-height, {{ header_height | default: '64px' }}) + 40px);"
+  class="fixed left-0 right-0 w-screen z-50"
+  data-dropdown="{{ link.handle }}"
+>
+  <div class="bg-white text-gray-900 shadow-lg max-h-[70vh] overflow-y-auto">
+    <div class="container-lg mx-auto px-8 py-14">
+      <div class="{% if show_content %}flex flex-col lg:flex-row gap-12{% endif %}">
+        <div class="{% if show_content %}flex-1 lg:w-[60%]{% else %}w-full{% endif %}">
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-16 gap-y-10">
+            {%- for child in link.links -%}
+              <div
+                style="animation-delay: {{ forloop.index0 | times: 100 }}ms;"
+                class="animate-[slideUp_300ms_ease-out_both]"
+              >
+                <h3 class="text-[15px] font-medium text-gray-900 mb-3 tracking-tight">
+                  <a href="{{ child.url }}">{{ child.title }}</a>
+                </h3>
+                {%- if child.links.size > 0 -%}
+                  <ul class="gap-2">
+                    {%- for grandchild in child.links -%}
+                      <li>
+                        <a
+                          href="{{ grandchild.url }}"
+                          class="text-[14px] text-gray-500 hover:text-gray-900 transition-colors duration-150 block py-0.5"
+                        >
+                          {{ grandchild.title }}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        {%- if show_content -%}
+          <div class="flex-shrink-0 lg:w-[40%] border-t lg:border-t-0 lg:border-l border-gray-200 pt-8 lg:pt-0 lg:pl-12">
+            {%- if content_type == 'collection' and featured_collection -%}
+              <div>
+                <h3 class="text-[15px] font-semibold text-gray-900 uppercase tracking-wide mb-6">
+                  {{ 'sections.header.featured_collection' | t | default: 'Featured collection' }}
+                </h3>
+                <a href="{{ featured_collection.url }}" class="flex items-start gap-4 group">
+                  {%- if featured_collection.featured_image -%}
+                    <div class="relative overflow-hidden rounded-lg flex-shrink-0 w-32 h-32">
+                      {{
+                        featured_collection.featured_image
+                        | image_url: width: 300
+                        | image_tag:
+                          class: 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300',
+                          loading: 'lazy'
+                      }}
+                    </div>
+                  {%- endif -%}
+                  <div class="flex-1 flex flex-col justify-center min-w-0">
+                    <h4 class="text-base font-semibold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors">
+                      {{ featured_collection.title }}
+                    </h4>
+                    {%- if featured_collection.description != blank -%}
+                      <p class="text-sm text-gray-500 line-clamp-2 mb-2">
+                        {{ featured_collection.description | strip_html | truncatewords: 15 }}
+                      </p>
+                    {%- endif -%}
+                    <span class="text-sm font-medium text-gray-900 group-hover:underline">
+                      {{- 'sections.header.view_collection' | t | default: 'View Collection' }} →</span
+                    >
+                  </div>
+                </a>
+              </div>
+            {%- elsif content_type == 'products' and products_count > 0 -%}
+              <div>
+                <h3 class="text-[15px] font-semibold text-gray-900 uppercase tracking-wide mb-6">
+                  {{ 'sections.header.featured_products' | t | default: 'Featured products' }}
+                </h3>
+                <div class="flex flex-row gap-4 overflow-x-auto pb-2">
+                  {%- for product in featured_products limit: 3 -%}
+                    <a href="{{ product.url }}" class="flex-shrink-0 w-40 group">
+                      {%- if product.featured_image -%}
+                        <div class="relative overflow-hidden rounded-lg mb-3 aspect-square">
+                          {{
+                            product.featured_image
+                            | image_url: width: 200
+                            | image_tag:
+                              class: 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300',
+                              loading: 'lazy'
+                          }}
+                        </div>
+                      {%- endif -%}
+                      <h4 class="text-sm font-medium text-gray-900 mb-1 group-hover:text-gray-600 transition-colors line-clamp-2">
+                        {{ product.title }}
+                      </h4>
+                      <p class="text-sm font-semibold text-gray-900">{{ product.price | money }}</p>
+                    </a>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
