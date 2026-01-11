@@ -6,16 +6,16 @@
     assign more_in_collection = true
   endif
 
-  assign columns_mobile_int = section.settings.columns_mobile | plus: 0
-  assign columns_desktop_int = section.settings.columns_desktop | plus: 0
+  assign max_columns_mobile_int = section.settings.max_columns_mobile | plus: 0
+  assign max_columns_desktop_int = section.settings.max_columns_desktop | plus: 0
   assign show_mobile_slider = false
-  if section.settings.swipe_on_mobile and products_to_display > columns_mobile_int
+  if section.settings.swipe_on_mobile and products_to_display > max_columns_mobile_int
     assign show_mobile_slider = true
   endif
 
-  assign max_columns_to_show = columns_mobile_int
-  if columns_desktop_int > columns_mobile_int
-    assign max_columns_to_show = columns_desktop_int
+  assign max_columns_to_show = max_columns_mobile_int
+  if max_columns_desktop_int > max_columns_mobile_int
+    assign max_columns_to_show = max_columns_desktop_int
   endif
 
   assign show_desktop_slider = false
@@ -97,7 +97,7 @@
             gap: 1rem;
             margin-left: 1rem;
             margin-right: 1rem;
-            grid-template-columns: repeat({{ columns_mobile_int }}, 1fr);
+            grid-template-columns: repeat({{ max_columns_mobile_int }}, 1fr);
           }
 
           @media screen and (min-width: 800px) {
@@ -108,7 +108,7 @@
 
           @media screen and (min-width: 920px) {
             #ProductGrid-{{ section.id }} {
-              grid-template-columns: repeat({{ columns_desktop_int }}, 1fr);
+              grid-template-columns: repeat({{ max_columns_desktop_int }}, 1fr);
             }
           }
         {% endstyle %}
@@ -251,12 +251,12 @@
     },
     {
       "type": "range",
-      "id": "columns_desktop",
+      "id": "max_columns_desktop",
       "min": 1,
       "max": 6,
       "step": 1,
       "default": 4,
-      "label": "t:sections.featured-collection.settings.columns_desktop.label"
+      "label": "Max Columns"
     },
     {
       "type": "checkbox",
@@ -403,9 +403,9 @@
     },
     {
       "type": "select",
-      "id": "columns_mobile",
+      "id": "max_columns_mobile",
       "default": "2",
-      "label": "t:sections.featured-collection.settings.columns_mobile.label",
+      "label": "Max Colmns",
       "options": [
         {
           "value": "1",
