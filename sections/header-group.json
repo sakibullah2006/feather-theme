@@ -21,6 +21,28 @@
         "topbar_menu": "topbar"
       }
     },
+    "header": {
+      "type": "header",
+      "settings": {
+        "menu": "main-menu",
+        "show_mega_menu_content": true,
+        "mega_menu_content_type": "collection",
+        "mega_menu_collection": "mens-sports",
+        "mega_menu_products": [
+          "mens-dri-fit-sleeveless-top",
+          "the-3p-fulfilled-snowboard",
+          "the-archived-snowboard"
+        ],
+        "sticky_header_type": "on-scroll-up",
+        "show_line_separator": false,
+        "color_scheme": "scheme-1",
+        "enable_customer_avatar": true,
+        "logo_icons_size": "size-5",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "margin_bottom": 0
+      }
+    },
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
@@ -45,23 +67,6 @@
         "change_slides_speed": 5,
         "color_scheme": "scheme-2",
         "show_line_separator": true
-      }
-    },
-    "header": {
-      "type": "header",
-      "settings": {
-        "logo_position": "middle-left",
-        "mobile_logo_position": "center",
-        "menu": "main-menu",
-        "menu_type_desktop": "dropdown",
-        "sticky_header_type": "on-scroll-up",
-        "show_line_separator": false,
-        "color_scheme": "scheme-1",
-        "menu_color_scheme": "",
-        "enable_customer_avatar": true,
-        "margin_bottom": 0,
-        "padding_top": 0,
-        "padding_bottom": 0
       }
     }
   },

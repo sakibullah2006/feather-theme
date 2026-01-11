@@ -14,9 +14,6 @@
   endif
 -%}
 
-{% stylesheet %}
-{% endstylesheet %}
-
 <section
   x-data="
     {
@@ -52,21 +49,20 @@
   >
     <div class="flex items-center justify-between h-16 gap-4">
       <div class="flex items-center gap-3 min-w-30">
-        <a href="{{ routes.root_url }}" class="flex items-center gap-2 focus:outline-none">
+        <a
+          href="{{ routes.root_url }}"
+          class="header__logo flex items-center gap-2 focus:outline-none {{ section.settings.logo_icons_size }}"
+        >
           {%- if settings.logo != blank -%}
             {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
-            {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
-            {%- assign logo_height_class = section.settings.logo_icons_size | replace: 'size-', 'h-' -%}
-            {%- assign logo_size_class = logo_height_class | append: ' w-auto object-contain' -%}
             {% capture sizes %}(max-width: {{ settings.logo_width | times: 2 }}px) 40vw, {{ settings.logo_width }}px{% endcapture %}
             {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
             {{
               settings.logo
-              | image_url: width: 600
+              | image_url: width: 800
               | image_tag:
-                class: logo_size_class,
+                class: 'header__logo-image',
                 widths: widths,
-                height: logo_height,
                 width: settings.logo_width,
                 alt: logo_alt,
                 sizes: sizes,
@@ -227,6 +223,9 @@
   {%- endif -%}
 </section>
 
+{% stylesheet %}
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "Header",
@@ -290,19 +289,23 @@
       "type": "select",
       "id": "logo_icons_size",
       "label": "Logo size",
-      "default": "size-5",
+      "default": "size-10",
       "options": [
         {
-          "value": "size-5",
+          "value": "size-10",
           "label": "Small"
         },
         {
-          "value": "size-6",
+          "value": "size-14",
           "label": "Medium"
         },
         {
-          "value": "size-10",
+          "value": "size-16",
           "label": "Large"
+        },
+        {
+          "value": "size-20",
+          "label": "Extra Large"
         }
       ]
     },
