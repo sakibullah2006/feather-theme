@@ -1,79 +1,75 @@
 /**
- * Alpine Slider Component
- * Reusable carousel/slider functionality with autoplay, navigation, and keyboard support
- *
- * Usage:
- * <div x-data="slider({ total: 3, autoplay: true, speed: 5000 })">
- *   <div x-show="current === 0" class="transition-opacity duration-500">Slide 1</div>
- *   <div x-show="current === 1" class="transition-opacity duration-500">Slide 2</div>
- *   <div x-show="current === 2" class="transition-opacity duration-500">Slide 3</div>
- *   <button @click="prev()">Previous</button>
- *   <button @click="next()">Next</button>
- * </div>
+ * Alpine Carousel Component
+ * Uses native CSS scroll-snap for a performant, snappy slider.
  */
-export default function Carousel(config = {}) {
+export default function Carousel() {
   return {
-    current: 0,
-    total: config.total || 0,
-    autoplay: config.autoplay || false,
-    speed: config.speed || 5000,
-    interval: null,
-
+    atStart: true,
+    atEnd: false,
     init() {
-      if (this.autoplay && this.total > 1) {
-        this.startAutoplay();
-      }
+      // Initialize scroll position check
+      this.update();
 
-      // Keyboard navigation
-      this.$el.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") this.prev();
-        if (e.key === "ArrowRight") this.next();
+      // Update on scroll
+      if (this.$refs.container) {
+        this.$refs.container.addEventListener('scroll', () => {
+          this.update();
+        }, { passive: true });
+
+        // Update on resize
+        window.addEventListener('resize', () => {
+          this.update();
+        }, { passive: true });
+      }
+    },
+    next() {
+      this.scroll('next');
+    },
+    prev() {
+      this.scroll('prev');
+    },
+    scroll(direction) {
+      const container = this.$refs.container;
+      if (!container) return;
+
+      // Calculate how many items are visible
+      const containerWidth = container.clientWidth;
+      const firstChild = container.firstElementChild;
+      if (!firstChild) return;
+
+      const cardWidth = firstChild.clientWidth;
+      const gap = 16; // 1rem gap
+
+      // Calculate items per view (how many cards fit in the visible area)
+      const itemsPerView = Math.floor(containerWidth / (cardWidth + gap));
+
+      // Scroll by the number of visible items
+      const scrollAmount = (cardWidth + gap) * itemsPerView;
+
+      const currentScroll = container.scrollLeft;
+      const targetScroll = direction === 'next'
+        ? currentScroll + scrollAmount
+        : currentScroll - scrollAmount;
+
+      container.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
       });
     },
+    update() {
+      const container = this.$refs.container;
+      if (!container) return;
 
-    next() {
-      this.current = (this.current + 1) % this.total;
-      this.resetAutoplay();
-    },
+      // Check if at start (with small threshold for rounding errors)
+      this.atStart = container.scrollLeft <= 1;
 
-    prev() {
-      this.current = (this.current - 1 + this.total) % this.total;
-      this.resetAutoplay();
-    },
-
-    goto(index) {
-      if (index >= 0 && index < this.total) {
-        this.current = index;
-        this.resetAutoplay();
-      }
-    },
-
-    startAutoplay() {
-      if (this.interval) clearInterval(this.interval);
-      this.interval = setInterval(() => this.next(), this.speed);
-    },
-
-    stopAutoplay() {
-      if (this.interval) {
-        clearInterval(this.interval);
-        this.interval = null;
-      }
-    },
-
-    resetAutoplay() {
-      if (this.autoplay) {
-        this.stopAutoplay();
-        this.startAutoplay();
-      }
-    },
-
-    destroy() {
-      this.stopAutoplay();
-    },
+      // Check if at end (with small threshold for rounding errors)
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      this.atEnd = container.scrollLeft >= maxScroll - 1;
+    }
   };
 }
 
-// Register as Alpine component
 if (window.Alpine) {
-  window.Alpine.data("Carousel ", slider);
+  window.Alpine.data('Carousel', Carousel);
 }

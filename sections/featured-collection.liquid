@@ -3,132 +3,216 @@
 
   if section.settings.collection.all_products_count > section.settings.products_to_show
     assign products_to_display = section.settings.products_to_show
-    assign more_in_collection = true
   endif
 
   assign max_columns_mobile_int = section.settings.max_columns_mobile | plus: 0
   assign max_columns_desktop_int = section.settings.max_columns_desktop | plus: 0
-  assign show_mobile_slider = false
-  if section.settings.swipe_on_mobile and products_to_display > max_columns_mobile_int
-    assign show_mobile_slider = true
-  endif
-
-  assign max_columns_to_show = max_columns_mobile_int
-  if max_columns_desktop_int > max_columns_mobile_int
-    assign max_columns_to_show = max_columns_desktop_int
-  endif
-
-  assign show_desktop_slider = false
-  if section.settings.enable_desktop_slider and products_to_display > section.settings.columns_desktop
-    assign show_desktop_slider = true
-  endif
 -%}
 
-<section
-  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;"
-  class="container-lg space-y-2"
->
-  <div class="my-4">
-    {% if section.settings.title != blank and section.settings.show_title %}
-      <h2 class="px-5 tracking-tight text-black {{ section.settings.heading_size }} {{ section.settings.title_alignment }} ">
-        {{ section.settings.title }}
-      </h2>
+{% style %}
+  /* Carousel Styles */
+  #ProductCarousel-{{ section.id }} {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  #ProductCarousel-{{ section.id }}::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  #ProductCarousel-{{ section.id }} > * {
+    flex: 0 0 calc({{ 100 | divided_by: max_columns_mobile_int }}% - {{ 1 | times: max_columns_mobile_int | minus: 1 | divided_by: max_columns_mobile_int }}rem);
+    scroll-snap-align: start;
+  }
+
+  @media screen and (min-width: 640px) {
+    #ProductCarousel-{{ section.id }} > * {
+      flex: 0 0 calc(33.333% - 0.667rem); /* Tablet: 3 columns */
+    }
+  }
+
+  @media screen and (min-width: 920px) {
+    #ProductCarousel-{{ section.id }} > * {
+      flex: 0 0 calc({{ 100 | divided_by: max_columns_desktop_int }}% - {{ 1 | times: max_columns_desktop_int | minus: 1 | divided_by: max_columns_desktop_int }}rem);
+    }
+  }
+
+  /* Grid Styles */
+  #ProductGrid-{{ section.id }} {
+    {% if section.settings.swipe_on_mobile %}
+      /* Mobile: Carousel behavior when swipe_on_mobile is enabled */
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    {% else %}
+      /* Mobile: Grid behavior */
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat({{ max_columns_mobile_int }}, 1fr);
     {% endif %}
-    {%- if section.settings.show_description and section.settings.description != blank -%}
-      <div class="px-5">
-        <p>{{ section.settings.description }}</p>
+  }
+
+  {% if section.settings.swipe_on_mobile %}
+    #ProductGrid-{{ section.id }}::-webkit-scrollbar {
+      display: none;
+    }
+
+    #ProductGrid-{{ section.id }} > * {
+      flex: 0 0 calc({{ 100 | divided_by: max_columns_mobile_int }}% - {{ 1 | times: max_columns_mobile_int | minus: 1 | divided_by: max_columns_mobile_int }}rem);
+      scroll-snap-align: start;
+    }
+  {% endif %}
+
+  @media screen and (min-width: 640px) {
+    #ProductGrid-{{ section.id }} {
+      /* Tablet: Always grid */
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, 1fr);
+      overflow-x: visible;
+      scroll-snap-type: none;
+    }
+
+    #ProductGrid-{{ section.id }} > * {
+      flex: none;
+    }
+  }
+
+  @media screen and (min-width: 920px) {
+    #ProductGrid-{{ section.id }} {
+      grid-template-columns: repeat({{ max_columns_desktop_int }}, 1fr);
+    }
+  }
+{% endstyle %}
+
+<section
+  {% if section.settings.display_type == 'carousel' or section.settings.swipe_on_mobile %}
+    x-data="carousel()"
+  {% endif %}
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;"
+  class="container-lg space-y-4 px-5"
+>
+  {%- if section.settings.collection != blank and section.settings.collection.products_count > 0 -%}
+    {% assign collection = section.settings.collection %}
+
+    <div class="flex justify-between items-center">
+      {% if section.settings.title != blank and section.settings.show_title %}
+        <h2 class="tracking-tight text-black {{ section.settings.heading_size }} {{ section.settings.title_alignment }} ">
+          {{ section.settings.title }}
+        </h2>
+      {% endif %}
+
+      <div class="flex items-center gap-4">
+        {%- if section.settings.show_view_all -%}
+          {%- liquid
+            case section.settings.view_all_style
+              when 'link'
+                assign view_all_classes = 'relative tracking-tight px-2 py-1 text-sm font-medium transition-all after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full'
+              when 'outline'
+                assign view_all_classes = 'tracking-tight text-sm font-medium px-4 py-2 border border-current/20 hover:border-current/40 hover:bg-current/5 rounded-lg transition-all'
+              when 'solid'
+                assign view_all_classes = 'tracking-tight text-sm shadow-xs font-medium px-4 py-2 bg-current/10 hover:bg-current/20 rounded-lg transition-all'
+            endcase
+          -%}
+          <a
+            href="{{ collection.url }}"
+            class="{{ view_all_classes }}"
+            >View All</a
+          >
+        {%- endif -%}
+
+        {%- comment -%} Navigation Buttons - Only show for carousel or grid with swipe on mobile {%- endcomment -%}
+
+        {% if section.settings.display_type == 'carousel' %}
+          {% assign show_navigation_buttons = true %}
+        {% elsif section.settings.display_type == 'grid' and section.settings.swipe_on_mobile %}
+          {% assign show_navigation_buttons = true %}
+        {% else %}
+          {% assign show_navigation_buttons = false %}
+        {% endif %}
+
+        {%- if show_navigation_buttons -%}
+          <div class="flex gap-2 {% if section.settings.display_type != 'carousel' %}md:hidden{% endif %}">
+            <button
+              type="button"
+              @click="prev()"
+              :disabled="atStart"
+              :class="{ 'opacity-40 cursor-not-allowed': atStart }"
+              class="size-10 flex items-center justify-center hover:bg-current/7 bg-current/10 rounded-full transition-all disabled:hover:bg-current/10"
+              aria-label="Previous"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+            <button
+              type="button"
+              @click="next()"
+              :disabled="atEnd"
+              :class="{ 'opacity-40 cursor-not-allowed': atEnd }"
+              class="size-10 flex items-center justify-center hover:bg-current/7 bg-current/10 rounded-full transition-all disabled:hover:bg-current/10"
+              aria-label="Next"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if section.settings.display_type == 'carousel' -%}
+      <!-- Product Carousel Container -->
+      <div
+        id="ProductCarousel-{{ section.id }}"
+        x-ref="container"
+        class="relative"
+      >
+        {%- for product in collection.products limit: products_to_display -%}
+          {% render 'card-product',
+            product: product,
+            collection: collection,
+            image_ratio: section.settings.image_ratio,
+            card_image_position: section.settings.card_image_position,
+            quick_view: section.settings.quick_view
+          %}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <!-- Product Grid Container -->
+      <div
+        id="ProductGrid-{{ section.id }}"
+        {% if section.settings.swipe_on_mobile %}
+          x-ref="container"
+        {% endif %}
+        class="relative"
+      >
+        {%- for product in collection.products limit: products_to_display -%}
+          {% render 'card-product',
+            product: product,
+            collection: collection,
+            image_ratio: section.settings.image_ratio,
+            card_image_position: section.settings.card_image_position,
+            quick_view: section.settings.quick_view
+          %}
+        {%- endfor -%}
       </div>
     {%- endif -%}
-  </div>
 
-  <div>
-    {% comment %} Slider Button {% endcomment %}
-    <div class="flex lg:hidden gap-3 my-2 justify-end items-center px-4">
-      <button
-        {% comment %} x-ref="prevBtn" {% endcomment %}
-        {% comment %} @click="prev()" {% endcomment %}
-        type="button"
-        class="size-10  flex items-center justify-center hover:bg-current/7 bg-current/10 rounded-full transition-opacity"
-        aria-label="Previous"
-      >
-        <svg
-          aria-hidden="true"
-          focusable="false"
-          viewBox="0 0 24 24"
-          role="img"
-          height="25px"
-          width="25px"
-          class="object-cover"
-          fill="none"
-        >
-          <path stroke="currentColor" stroke-width="1.5" d="M15.525 18.966L8.558 12l6.967-6.967"></path>
-        </svg>
-      </button>
-
-      <button
-        x-ref="prevBtn"
-        type="button"
-        @click="prev()"
-
-        class="size-10 rotate-180 flex items-center justify-center hover:bg-current/7 bg-current/10 rounded-full transition-opacity"
-        aria-label="Previous"
-      >
-        <svg
-          aria-hidden="true"
-          focusable="false"
-          viewBox="0 0 24 24"
-          role="img"
-          height="25px"
-          width="25px"
-          class="object-cover"
-          fill="none"
-        >
-          <path stroke="currentColor" stroke-width="1.5" d="M15.525 18.966L8.558 12l6.967-6.967"></path>
-        </svg>
-      </button>
-    </div>
-    <div>
-      {%- if section.settings.collection != blank and section.settings.collection.products_count > 0 -%}
-        {% assign collection = section.settings.collection %}
-
-        {% style %}
-          #ProductGrid-{{ section.id }} {
-            display: grid;
-            gap: 1rem;
-            margin-left: 1rem;
-            margin-right: 1rem;
-            grid-template-columns: repeat({{ max_columns_mobile_int }}, 1fr);
-          }
-
-          @media screen and (min-width: 800px) {
-            #ProductGrid-{{ section.id }} {
-              grid-template-columns: repeat(3, 1fr);
-            }
-          }
-
-          @media screen and (min-width: 920px) {
-            #ProductGrid-{{ section.id }} {
-              grid-template-columns: repeat({{ max_columns_desktop_int }}, 1fr);
-            }
-          }
-        {% endstyle %}
-
-        <div
-          id="ProductGrid-{{ section.id }}"
-        >
-          {%- for product in collection.products limit: products_to_display -%}
-            {% render 'card-product',
-              product: product,
-              collection: collection,
-              image_ratio: section.settings.image_ratio,
-              card_image_position: section.settings.card_image_position,
-              quick_view: section.settings.quick_view
-            %}
-          {%- endfor -%}
-        </div>
-      {%- endif -%}
-    </div>
-  </div>
+    {% comment %} End Collection Display {% endcomment %}
+  {%- endif -%}
 </section>
 
 {% schema %}
@@ -214,37 +298,7 @@
       "default": "text-2xl",
       "label": "t:sections.all.heading_size.label"
     },
-    {
-      "type": "richtext",
-      "id": "description",
-      "label": "t:sections.featured-collection.settings.description.label"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_description",
-      "label": "t:sections.featured-collection.settings.show_description.label",
-      "default": false
-    },
-    {
-      "type": "select",
-      "id": "description_style",
-      "label": "t:sections.featured-collection.settings.description_style.label",
-      "options": [
-        {
-          "value": "body",
-          "label": "t:sections.featured-collection.settings.description_style.options__1.label"
-        },
-        {
-          "value": "subtitle",
-          "label": "t:sections.featured-collection.settings.description_style.options__2.label"
-        },
-        {
-          "value": "uppercase",
-          "label": "t:sections.featured-collection.settings.description_style.options__3.label"
-        }
-      ],
-      "default": "body"
-    },
+
     {
       "type": "header",
       "content": "t:sections.featured-collection.settings.header_collection.content"
@@ -258,18 +312,31 @@
       "default": 4,
       "label": "Max Columns"
     },
+
+    {
+      "type": "select",
+      "id": "display_type",
+      "label": "Display type",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        }
+      ],
+      "default": "grid"
+    },
+
     {
       "type": "checkbox",
-      "id": "enable_desktop_slider",
-      "label": "t:sections.featured-collection.settings.enable_desktop_slider.label",
-      "default": false
+      "id": "swipe_on_mobile",
+      "default": false,
+      "label": "Carousel On Mobile"
     },
-    {
-      "type": "checkbox",
-      "id": "full_width",
-      "label": "t:sections.featured-collection.settings.full_width.label",
-      "default": false
-    },
+
     {
       "type": "checkbox",
       "id": "show_view_all",
@@ -297,13 +364,28 @@
       ],
       "default": "solid"
     },
+
     {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
-      "info": "t:sections.all.colors.has_cards_info",
-      "default": "scheme-1"
+      "type": "header",
+      "content": "t:sections.featured-collection.settings.header_mobile.content"
     },
+    {
+      "type": "select",
+      "id": "max_columns_mobile",
+      "default": "2",
+      "label": "Max Colmns",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.featured-collection.settings.columns_mobile.options__1.label"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.featured-collection.settings.columns_mobile.options__2.label"
+        }
+      ]
+    },
+
     {
       "type": "header",
       "content": "t:sections.featured-collection.settings.header.content"
@@ -397,32 +479,7 @@
       "default": true,
       "label": "Quick View"
     },
-    {
-      "type": "header",
-      "content": "t:sections.featured-collection.settings.header_mobile.content"
-    },
-    {
-      "type": "select",
-      "id": "max_columns_mobile",
-      "default": "2",
-      "label": "Max Colmns",
-      "options": [
-        {
-          "value": "1",
-          "label": "t:sections.featured-collection.settings.columns_mobile.options__1.label"
-        },
-        {
-          "value": "2",
-          "label": "t:sections.featured-collection.settings.columns_mobile.options__2.label"
-        }
-      ]
-    },
-    {
-      "type": "checkbox",
-      "id": "swipe_on_mobile",
-      "default": false,
-      "label": "t:sections.featured-collection.settings.swipe_on_mobile.label"
-    },
+
     {
       "type": "header",
       "content": "t:sections.all.padding.section_padding_heading"
