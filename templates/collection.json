@@ -4,7 +4,10 @@
       "type": "main-collection-banner",
       "settings": {
         "show_collection_description": true,
-        "show_collection_image": false,
+        "show_collection_image": true,
+        "show_breadcrumbs": true,
+        "show_category_links": true,
+        "menu": "main-menu",
         "color_scheme": "scheme-1"
       }
     },

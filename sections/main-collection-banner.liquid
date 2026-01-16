@@ -1,46 +1,142 @@
 {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
-{{ 'component-collection-hero.css' | asset_url | stylesheet_tag }}
 
-{%- style -%}
-  @media screen and (max-width: 749px) {
-    .collection-hero--with-image .collection-hero__inner {
-      padding-bottom: calc({{ settings.media_shadow_vertical_offset | at_least: 0 }}px + 2rem);
-    }
-  }
-{%- endstyle -%}
+{%- liquid
+  assign has_image = false
+  if section.settings.show_collection_image and collection.image
+    assign has_image = true
+  endif
+-%}
 
-<div class="collection-hero{% if section.settings.show_collection_image and collection.image %} collection-hero--with-image{% endif %} color-{{ section.settings.color_scheme }} gradient">
-  <div class="collection-hero__inner page-width {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
-    <div class="collection-hero__text-wrapper">
-      <h1 class="collection-hero__title">
-        <span class="visually-hidden">{{ 'sections.collection_template.title' | t }}: </span>
-        {{- collection.title | escape -}}
-      </h1>
-
-      {%- if section.settings.show_collection_description -%}
-        <div class="collection-hero__description rte">{{ collection.description }}</div>
-      {%- endif -%}
+{%- comment -%} Full-width hero banner with background image {%- endcomment -%}
+<div
+  class="relative w-full {% if has_image %}h-64 md:h-80 lg:h-96{% else %}h-48 md:h-64{% endif %} overflow-hidden"
+  {% if settings.animations_reveal_on_scroll %}
+    x-data="
+      {
+        visible: false,
+        init() {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                this.visible = true;
+              }
+            });
+          }, { threshold: 0.1 });
+          observer.observe(this.$el);
+        }
+      }
+    "
+  {% endif %}
+>
+  {%- comment -%} Background Image with Overlay {%- endcomment -%}
+  {%- if has_image -%}
+    <div class="absolute inset-0 z-0">
+      <img
+        srcset="
+          {%- if collection.image.width >= 375 -%}{{ collection.image | image_url: width: 375 }} 375w,{%- endif -%}
+          {%- if collection.image.width >= 750 -%}{{ collection.image | image_url: width: 750 }} 750w,{%- endif -%}
+          {%- if collection.image.width >= 1100 -%}{{ collection.image | image_url: width: 1100 }} 1100w,{%- endif -%}
+          {%- if collection.image.width >= 1500 -%}{{ collection.image | image_url: width: 1500 }} 1500w,{%- endif -%}
+          {%- if collection.image.width >= 1780 -%}{{ collection.image | image_url: width: 1780 }} 1780w,{%- endif -%}
+          {%- if collection.image.width >= 2000 -%}{{ collection.image | image_url: width: 2000 }} 2000w,{%- endif -%}
+          {%- if collection.image.width >= 3000 -%}{{ collection.image | image_url: width: 3000 }} 3000w,{%- endif -%}
+          {{ collection.image | image_url }} {{ collection.image.width }}w
+        "
+        src="{{ collection.image | image_url: width: 1500 }}"
+        sizes="100vw"
+        alt="{{ collection.image.alt | escape }}"
+        width="{{ collection.image.width }}"
+        height="{{ collection.image.height }}"
+        class="w-full h-full object-cover object-right"
+        loading="eager"
+      >
+      {%- comment -%} Dark overlay for better text readability {%- endcomment -%}
+      <div class="absolute inset-0 bg-linear-to-r from-black/40 via-black/20 to-transparent"></div>
     </div>
+  {%- else -%}
+    {%- comment -%} Fallback gradient background {%- endcomment -%}
+    <div class="absolute inset-0 z-0 color-{{ section.settings.color_scheme }} gradient"></div>
+  {%- endif -%}
 
-    {%- if section.settings.show_collection_image and collection.image -%}
-      <div class="collection-hero__image-container media gradient">
-        <img
-          srcset="
-            {%- if collection.image.width >= 165 -%}{{ collection.image | image_url: width: 165 }} 165w,{%- endif -%}
-            {%- if collection.image.width >= 360 -%}{{ collection.image | image_url: width: 360 }} 360w,{%- endif -%}
-            {%- if collection.image.width >= 535 -%}{{ collection.image | image_url: width: 535 }} 535w,{%- endif -%}
-            {%- if collection.image.width >= 750 -%}{{ collection.image | image_url: width: 750 }} 750w,{%- endif -%}
-            {%- if collection.image.width >= 1070 -%}{{ collection.image | image_url: width: 1070 }} 1070w,{%- endif -%}
-            {%- if collection.image.width >= 1500 -%}{{ collection.image | image_url: width: 1500 }} 1500w,{%- endif -%}
-            {{ collection.image | image_url }} {{ collection.image.width }}w
-          "
-          src="{{ collection.image | image_url: width: 750 }}"
-          sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: 2 }}px, (min-width: 750px) calc(50vw - 130px), calc(50vw - 55px)"
-          alt="{{ collection.image.alt | escape }}"
-          width="{{ collection.image.width }}"
-          height="{{ collection.image.height }}"
-        >
+  {%- comment -%} Content Container {%- endcomment -%}
+  <div
+    class="relative {% unless has_image %}color-{{ section.settings.color_scheme }}{% endunless %} z-10 h-full flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8"
+    {% if settings.animations_reveal_on_scroll %}
+      x-bind:class="{ 'opacity-0 translate-y-8': !visible, 'opacity-100 translate-y-0 transition-all duration-700 ease-out delay-150': visible }"
+    {% endif %}
+  >
+    {%- comment -%} Breadcrumb Navigation {%- endcomment -%}
+    {%- if section.settings.show_breadcrumbs -%}
+      {%- if has_image -%}
+        {%- assign breadcrumb_style = 'light' -%}
+      {%- else -%}
+        {%- assign breadcrumb_style = 'default' -%}
+      {%- endif -%}
+      {% render 'breadcrumb', style: breadcrumb_style, centered: true %}
+    {%- endif -%}
+
+    {%- comment -%} Collection Title {%- endcomment -%}
+    <h1 class="collection-title text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 {% if has_image %}gradient-silver-shine{% else %}text-current{% endif %}">
+      <span class="sr-only">{{ 'sections.collection_template.title' | t }}: </span>
+      {{- collection.title | escape -}}
+    </h1>
+    {% if has_image %}
+      <style>
+        .gradient-silver-shine {
+          background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 25%, #ffffff 50%, #d4d4d4 75%, #ffffff 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-size: 200% 200%;
+          animation: silverShine 3s ease-in-out infinite;
+        }
+
+        @keyframes silverShine {
+          0%,
+          100% {
+            background-position: 0% 0%;
+          }
+          50% {
+            background-position: 100% 100%;
+          }
+        }
+      </style>
+    {% endif %}
+
+    {%- comment -%} Collection Description {%- endcomment -%}
+    {%- if section.settings.show_collection_description and collection.description != blank -%}
+      <div class="rte max-w-2xl mx-auto text-base sm:text-lg leading-relaxed mb-8 {% if has_image %}text-white/90{% else %}text-current opacity-80{% endif %}">
+        {{ collection.description }}
       </div>
+    {%- endif -%}
+
+    {%- comment -%} Type Navigation Links {%- endcomment -%}
+    {%- if collection.all_types.size > 0 -%}
+      <nav class="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+        {%- comment -%} All Products Link {%- endcomment -%}
+        <a
+          href="{{ collection.url }}"
+          class="text-sm sm:text-base font-medium transition-all duration-300 pb-1 border-b-2 {% if has_image %}text-white hover:border-white{% else %}text-current hover:border-current{% endif %} {% if collection.current_type == blank %}border-current opacity-100{% else %}border-transparent opacity-85 hover:opacity-100{% endif %}"
+          {% if has_image %}
+            style="text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);"
+          {% endif %}
+        >
+          All
+        </a>
+
+        {%- comment -%} Individual Type Links {%- endcomment -%}
+        {%- for type in collection.all_types -%}
+          <a
+            href="{{ routes.collections_url }}/types?q={{ type | url_encode }}"
+            class="text-sm sm:text-base font-medium transition-all duration-300 pb-1 border-b-2 {% if has_image %}text-white hover:border-white{% else %}text-current hover:border-current{% endif %} {% if collection.current_type == type %}border-current opacity-100{% else %}border-transparent opacity-85 hover:opacity-100{% endif %}"
+            {% if has_image %}
+              style="text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);"
+            {% endif %}
+          >
+            {{ type }}
+          </a>
+        {%- endfor -%}
+      </nav>
     {%- endif -%}
   </div>
 </div>
@@ -63,8 +159,14 @@
     {
       "type": "checkbox",
       "id": "show_collection_image",
-      "default": false,
+      "default": true,
       "label": "t:sections.main-collection-banner.settings.show_collection_image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "default": true,
+      "label": "Show breadcrumbs"
     },
     {
       "type": "color_scheme",

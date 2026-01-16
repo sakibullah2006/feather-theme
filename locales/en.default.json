@@ -55,6 +55,10 @@
       "next_slide": "Slide right",
       "previous_slide": "Slide left",
       "name": "Slider"
+    },
+    "breadcrumbs": {
+      "home": "Home",
+      "aria_label": "Breadcrumb"
     }
   },
   "newsletter": {

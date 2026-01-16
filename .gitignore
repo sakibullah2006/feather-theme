@@ -8,5 +8,6 @@
 ehthumbs.db
 Thumbs.db
 .shopify
+.gemini
 
 node_modules/

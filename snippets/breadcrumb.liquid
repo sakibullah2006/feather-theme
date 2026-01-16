@@ -1,0 +1,247 @@
+{% comment %}
+  Renders a hierarchical breadcrumb navigation with schema.org markup.
+
+  Automatically detects context (product, collection, article, page) and builds
+  the appropriate breadcrumb trail.
+
+  Usage:
+    {% render 'breadcrumb' %}
+    {% render 'breadcrumb', style: 'light' %}
+    {% render 'breadcrumb', style: 'dark', centered: true %}
+
+  Parameters:
+    - style: 'default' | 'light' | 'dark' (optional, default: 'default')
+      - 'default': Uses currentColor, inherits from parent
+      - 'light': White text with shadow (for dark/image backgrounds)
+      - 'dark': Dark text (for light backgrounds)
+    - centered: true | false (optional, default: false)
+      - Centers the breadcrumb list
+
+  Contexts:
+    - Product: Home → Collection (if available) → Product
+    - Collection: Home → Collection
+    - Article: Home → Blog → Article
+    - Page: Home → Page
+{% endcomment %}
+
+{%- assign breadcrumb_style = style | default: 'default' -%}
+{%- assign is_centered = centered | default: false -%}
+
+{% stylesheet %}
+  /* Default breadcrumb colors - can be overridden by parent */
+  .breadcrumb__item,
+  .breadcrumb__link {
+    color: currentColor;
+    opacity: 0.8;
+  }
+
+  .breadcrumb__link:hover,
+  .breadcrumb__link:focus-visible {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  /* Breadcrumb divider */
+  .breadcrumb__item + .breadcrumb__item::before {
+    content: '/';
+    margin-inline: 0.5rem;
+    color: currentColor;
+    opacity: 0.5;
+  }
+
+  /* Light style - for dark/image backgrounds */
+  .breadcrumb--light .breadcrumb__item,
+  .breadcrumb--light .breadcrumb__link {
+    color: rgba(255, 255, 255, 1) !important;
+    opacity: 1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .breadcrumb--light .breadcrumb__item + .breadcrumb__item::before {
+    color: rgba(255, 255, 255, 0.8) !important;
+    opacity: 1;
+  }
+
+  .breadcrumb--light .breadcrumb__link:hover,
+  .breadcrumb--light .breadcrumb__link:focus-visible {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Dark style - for light backgrounds */
+  .breadcrumb--dark .breadcrumb__item,
+  .breadcrumb--dark .breadcrumb__link {
+    color: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .breadcrumb--dark .breadcrumb__item + .breadcrumb__item::before {
+    color: rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* Centered alignment */
+  .breadcrumb--centered .breadcrumb__list {
+    justify-content: center;
+  }
+
+  /* View transitions for modern browsers */
+  @media (prefers-reduced-motion: no-preference) {
+    .breadcrumb {
+      view-transition-name: breadcrumb;
+    }
+  }
+{% endstylesheet %}
+
+<nav
+  class="breadcrumb breadcrumb--{{ breadcrumb_style }}{% if is_centered %} breadcrumb--centered{% endif %} my-2 mb-6 text-sm"
+  aria-label="{{ 'general.breadcrumbs.aria_label' | t }}"
+>
+  <ol
+    class="breadcrumb__list flex flex-wrap items-center gap-2 list-none p-0 m-0"
+    itemscope
+    itemtype="https://schema.org/BreadcrumbList"
+  >
+    {%- comment -%} Home link (always present) {%- endcomment -%}
+    <li
+      class="breadcrumb__item inline-flex items-center"
+      itemprop="itemListElement"
+      itemscope
+      itemtype="https://schema.org/ListItem"
+    >
+      <a
+        href="{{ routes.root_url }}"
+        class="breadcrumb__link no-underline hover:underline focus-visible:underline"
+        itemprop="item"
+      >
+        <span itemprop="name">{{ 'general.breadcrumbs.home' | t }}</span>
+      </a>
+      <meta itemprop="position" content="1">
+    </li>
+
+    {%- case template.name -%}
+      {%- when 'product' -%}
+        {%- comment -%} Product page: Home → Collection (if available) → Product {%- endcomment -%}
+        {%- if collection -%}
+          <li
+            class="breadcrumb__item inline-flex items-center"
+            itemprop="itemListElement"
+            itemscope
+            itemtype="https://schema.org/ListItem"
+          >
+            <a
+              href="{{ collection.url }}"
+              class="breadcrumb__link no-underline hover:underline focus-visible:underline"
+              itemprop="item"
+            >
+              <span itemprop="name">{{ collection.title }}</span>
+            </a>
+            <meta itemprop="position" content="2">
+          </li>
+          <li
+            class="breadcrumb__item inline-flex items-center font-medium"
+            itemprop="itemListElement"
+            itemscope
+            itemtype="https://schema.org/ListItem"
+          >
+            <span itemprop="name">{{ product.title }}</span>
+            <meta itemprop="position" content="3">
+          </li>
+        {%- else -%}
+          <li
+            class="breadcrumb__item inline-flex items-center font-medium"
+            itemprop="itemListElement"
+            itemscope
+            itemtype="https://schema.org/ListItem"
+          >
+            <span itemprop="name">{{ product.title }}</span>
+            <meta itemprop="position" content="2">
+          </li>
+        {%- endif -%}
+
+      {%- when 'collection' -%}
+        {%- comment -%} Collection page: Home → Collection {%- endcomment -%}
+        <li
+          class="breadcrumb__item inline-flex items-center font-medium"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <span itemprop="name">{{ collection.title }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+
+      {%- when 'article' -%}
+        {%- comment -%} Article page: Home → Blog → Article {%- endcomment -%}
+        <li
+          class="breadcrumb__item inline-flex items-center"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <a
+            href="{{ blog.url }}"
+            class="breadcrumb__link no-underline hover:underline focus-visible:underline"
+            itemprop="item"
+          >
+            <span itemprop="name">{{ blog.title }}</span>
+          </a>
+          <meta itemprop="position" content="2">
+        </li>
+        <li
+          class="breadcrumb__item inline-flex items-center font-medium"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <span itemprop="name">{{ article.title }}</span>
+          <meta itemprop="position" content="3">
+        </li>
+
+      {%- when 'page' -%}
+        {%- comment -%} Page: Home → Page {%- endcomment -%}
+        <li
+          class="breadcrumb__item inline-flex items-center text-gray-800 font-medium"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <span itemprop="name">{{ page.title }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+
+      {%- when 'blog' -%}
+        {%- comment -%} Blog listing: Home → Blog {%- endcomment -%}
+        <li
+          class="breadcrumb__item inline-flex items-center text-gray-800 font-medium"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <span itemprop="name">{{ blog.title }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+
+      {%- when 'search' -%}
+        {%- comment -%} Search results: Home → Search {%- endcomment -%}
+        <li
+          class="breadcrumb__item inline-flex items-center text-gray-800 font-medium"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <span itemprop="name">{{ 'general.search.search' | t }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+
+      {%- when 'cart' -%}
+        {%- comment -%} Cart: Home → Cart {%- endcomment -%}
+        <li
+          class="breadcrumb__item inline-flex items-center text-gray-800 font-medium"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          <span itemprop="name">{{ 'sections.cart.title' | t }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+    {%- endcase -%}
+  </ol>
+</nav>
