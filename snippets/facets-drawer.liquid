@@ -1,0 +1,83 @@
+{%- comment -%}
+  Renders the mobile filter drawer.
+  Accepts:
+  - results: {Object} Collection or Search results object.
+  - sort_by: {String} The currently active sort option.
+  - results_url: {String} The URL to clear filters.
+{%- endcomment -%}
+
+<template x-teleport="body">
+  <div
+    x-show="openMobile"
+    x-transition:enter="ease-out duration-[250ms]"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="ease-in duration-[200ms]"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 z-100 lg:hidden"
+    x-cloak
+  >
+    <div @click="openMobile = false" class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div
+      x-show="openMobile"
+      x-transition:enter="ease-out duration-[250ms]"
+      x-transition:enter-start="translate-x-full"
+      x-transition:enter-end="translate-x-0"
+      x-transition:leave="ease-in duration-[200ms]"
+      x-transition:leave-start="translate-x-0"
+      x-transition:leave-end="translate-x-full"
+      class="fixed inset-y-0 right-0 w-full max-w-xs bg-white shadow-xl flex flex-col transform"
+    >
+      <div class="p-6 border-b flex justify-between items-center">
+        <h2 class="font-bold">Filters</h2>
+        <button
+          @click="openMobile = false"
+          class="p-2 -m-2 hover:bg-gray-100 rounded-lg transition-colors duration-250"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div id="FacetsMobileContent" class="flex-1 overflow-y-auto p-6">
+        {%- comment -%} The content here is mirrored via the renderPart function {%- endcomment -%}
+        <div class="mobile-sorting mb-6">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Sort By</label>
+          <select
+            name="sort_by"
+            form="FacetFiltersForm"
+            @change="filterProducts()"
+            class="w-full border-gray-200 rounded-lg"
+          >
+            {%- for option in results.sort_options -%}
+              <option
+                value="{{ option.value }}"
+                {% if option.value == sort_by %}
+                  selected
+                {% endif %}
+              >
+                {{ option.name }}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      </div>
+
+      <div class="p-6 border-t bg-gray-50 flex gap-3">
+        <a
+          href="{{ results_url }}"
+          class="flex-1 text-center py-3 border border-black rounded-lg text-sm font-bold hover:bg-black hover:text-white transition-colors duration-250"
+          >Clear</a
+        >
+        <button
+          @click="openMobile = false"
+          class="flex-1 py-3 bg-black text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors duration-250 active:scale-95"
+        >
+          Apply
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
