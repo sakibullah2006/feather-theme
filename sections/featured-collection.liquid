@@ -98,7 +98,7 @@
 
 <section
   {% if section.settings.display_type == 'carousel' or section.settings.swipe_on_mobile %}
-    x-data="carousel()"
+    x-data="carousel(1)"
   {% endif %}
   style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;"
   class="container-lg space-y-4 px-5"
@@ -106,14 +106,14 @@
   {%- if section.settings.collection != blank and section.settings.collection.products_count > 0 -%}
     {% assign collection = section.settings.collection %}
 
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center px-2">
       {% if section.settings.title != blank and section.settings.show_title %}
         <h2 class="tracking-tight text-black {{ section.settings.heading_size }} {{ section.settings.title_alignment }} ">
           {{ section.settings.title }}
         </h2>
       {% endif %}
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 ">
         {%- if section.settings.show_view_all -%}
           {%- liquid
             case section.settings.view_all_style
