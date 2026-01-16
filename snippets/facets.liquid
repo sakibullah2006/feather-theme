@@ -13,7 +13,6 @@
     {
       sectionId: '{{ section.id }}',
       openMobile: false,
-      loading: false,
       activeFilter: null,
       priceTimeout: null,
 
@@ -26,7 +25,7 @@
       init() {
         window.addEventListener('popstate', (e) => {
           if (e.state && e.state.path) {
-            this.filterProducts(e.state.path, false);
+            this.filterProducts(e.state.path);
           }
         });
 
@@ -37,45 +36,23 @@
           }
         });
       },
-      async filterProducts(customUrl = null, updateHistory = true) {
-        this.loading = true;
-
-        // Prepare Form Data
+      filterProducts(customUrl = null) {
         const form = document.getElementById('FacetFiltersForm');
-        const formData = new FormData(form);
-        const searchParams = new URLSearchParams(formData);
 
-        // Construct URLs
-        const baseUrl = customUrl || `${window.location.pathname}?${searchParams.toString()}`;
-        const fetchUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}section_id=${this.sectionId}`;
-
-        try {
-          const response = await fetch(fetchUrl);
-          const html = await response.text();
-          const doc = new DOMParser().parseFromString(html, 'text/html');
-
-          // Update DOM Elements
-          this.renderPart('ProductGridContainer', doc);
-          this.renderPart('FacetFiltersForm', doc);
-          this.renderPart('FacetsMobileContent', doc);
-          this.renderPart('CollectionProductCount', doc);
-
-          if (updateHistory) {
-            window.history.pushState({ path: baseUrl }, '', baseUrl);
-          }
-        } catch (error) {
-          console.error('Shopify Filter Error:', error);
-        } finally {
-          this.loading = false;
-        }
-      },
-      renderPart(id, doc) {
-        const source = doc.getElementById(id);
-        const target = document.getElementById(id);
-        if (source && target) {
-          target.innerHTML = source.innerHTML;
-          // Re-initialize Alpine components in the new HTML
-          if (window.Alpine) window.Alpine.initTree(target);
+        if (customUrl) {
+          // Custom URL provided (e.g., from sort or popstate)
+          $store.hydrator.fetch(
+            customUrl,
+            this.sectionId,
+            ['ProductGridContainer', 'FacetFiltersForm', 'FacetsMobileContent', 'CollectionProductCount']
+          );
+        } else {
+          // Use form data
+          $store.hydrator.fetchForm(
+            form,
+            this.sectionId,
+            ['ProductGridContainer', 'FacetFiltersForm', 'FacetsMobileContent', 'CollectionProductCount']
+          );
         }
       },
       handlePriceChange() {
@@ -87,7 +64,7 @@
   @toggle-filters.window="openMobile = !openMobile"
 >
   {%- comment -%} Filter Form {%- endcomment -%}
-  <form id="FacetFiltersForm" class="facets__form">
+  <form id="FacetFiltersForm" class="facets__form" action="{{ results.url }}" method="get">
     {%- if results.terms -%}
       <input type="hidden" name="q" value="{{ results.terms | escape }}">
       <input name="options[prefix]" type="hidden" value="last">

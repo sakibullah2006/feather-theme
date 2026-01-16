@@ -7,6 +7,7 @@ import collapsible from "./header/collapsible.js";
 import dropdownMenu from "./header/dropdown-menu.js";
 import anchor from "@alpinejs/anchor";
 import carousel from "./common/carousel.js";
+import { initHydrator } from "./hydrator.js";
 
 window.Alpine = Alpine;
 
@@ -20,4 +21,8 @@ Alpine.data("slider", slider);
 Alpine.data("carousel", carousel);
 Alpine.data("collapsible", collapsible);
 Alpine.data("dropdownMenu", dropdownMenu);
+
+// Initialize hydrator store before starting Alpine
+initHydrator();
+
 Alpine.start();

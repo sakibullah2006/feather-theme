@@ -2,7 +2,6 @@
   class="color-{{ section.settings.color_scheme }} pt-{{ section.settings.padding_top }} pb-{{ section.settings.padding_bottom }}"
   x-data="
     {
-      loading: false,
       currentSortBy: '{{ collection.sort_by | default: collection.default_sort_by }}',
       updateSort(url) {
         window.dispatchEvent(new CustomEvent('filter-sort-trigger', { detail: { url: url } }));
@@ -16,11 +15,9 @@
       }
     }
   "
-  @filter-loading-start.window="loading = true"
-  @filter-loading-end.window="loading = false"
 >
   {%- paginate collection.products by section.settings.products_per_page -%}
-    <div class="container mx-auto px-6">
+    <div class="container mx-auto px-6" id="CollectionContainer">
       <div class="flex flex-col md:flex-row justify-between items-center py-6 border-y border-gray-100 mb-8">
         <div class="flex items-center gap-4">
           <h1 class="text-2xl font-medium tracking-tight">{{ collection.title }}</h1>
@@ -93,13 +90,13 @@
         <div class="flex-1 w-full" id="ProductGridContainer">
           <div
             class="relative transition-opacity duration-300"
-            :class="loading ? 'opacity-40 pointer-events-none' : 'opacity-100'"
+            :class="$store.hydrator && $store.hydrator.isHydrating ? 'opacity-40 pointer-events-none' : 'opacity-100'"
           >
-            {%- if loading -%}
-              <div class="absolute inset-0 z-10 flex justify-center pt-20">
+            <template x-if="$store.hydrator && $store.hydrator.isHydrating">
+              <div class="absolute inset-0 h-dvh z-10 flex justify-center pt-20">
                 <div class="w-10 h-10 border-4 border-gray-100 border-t-black rounded-full animate-spin"></div>
               </div>
-            {%- endif -%}
+            </template>
 
             {%- if collection.products.size == 0 -%}
               <div class="py-40 text-center bg-gray-50 rounded-3xl">
@@ -119,7 +116,12 @@
 
               {%- if paginate.pages > 1 -%}
                 <div class="mt-16 pt-8 border-t border-gray-100">
-                  {% render 'pagination', paginate: paginate %}
+                  {% render 'pagination',
+                    paginate: paginate,
+                    section_id: section.id,
+                    slots: 'ProductGridContainer,FacetFiltersForm,FacetsMobileContent,CollectionProductCount',
+                    scroll_target: 'CollectionContainer'
+                  %}
                 </div>
               {%- endif -%}
             {%- endif -%}
