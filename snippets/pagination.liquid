@@ -32,7 +32,17 @@
     role="navigation"
     aria-label="{{ 'general.pagination.label' | t }}"
     {%- if slots -%}
-      x-data='{ navigate(url) { if (this.$store && this.$store.hydrator) { this.$store.hydrator.fetch(url, "{{ section_id }}", {{ slots_array | json }}).then(() => { const target = document.getElementById("{{ scroll_target }}"); if (target) { target.scrollIntoView({ behavior: "smooth", block: "start" }); } }); } else { window.location.href = url; } } }'
+      x-data='
+        {
+          navigate(url) {
+            if (this.$store && this.$store.hydrator) {
+              const target = document.getElementById("{{ scroll_target }}");
+                if (target) { target.scrollIntoView({ behavior: "smooth", block: "start" }); }
+              this.$store.hydrator.fetch(url, "{{ section_id }}", {{ slots_array | json }})
+            } else { window.location.href = url; }
+          }
+        }
+      '
     {%- endif -%}
   >
     <nav class="flex items-center gap-3">
