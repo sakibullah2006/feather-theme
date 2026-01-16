@@ -1,78 +1,101 @@
-{% comment %}
-  Renders a set of links for paginated results. Must be used within paginate tags.
+{%- doc -%}
+  @description Renders a set of links for paginated results. Must be used within paginate tags.
 
-  Usage:
+  @param {paginate} paginate - The paginate object.
+  @param {string} [anchor] - This can be added so that on page reload it takes you to wherever you've placed your anchor tag.
+
+  @example
   {% paginate results by 2 %}
     {% render 'pagination', paginate: paginate, anchor: '#yourID' %}
   {% endpaginate %}
-
-  Accepts:
-  - paginate: {Object}
-  - anchor: {String} (optional) This can be added so that on page reload it takes you to wherever you've placed your anchor tag.
-{% endcomment %}
-
-{{ 'component-pagination.css' | asset_url | stylesheet_tag }}
+{%- enddoc -%}
 
 {%- if paginate.parts.size > 0 -%}
-  <div class="pagination-wrapper" data-page="{{ paginate.current_page }}">
-    <nav class="pagination" role="navigation" aria-label="{{ 'general.pagination.label' | t }}">
-      <ul class="pagination__list list-unstyled" role="list">
-        {%- if paginate.previous -%}
-          <li>
-            <a
-              href="{{ paginate.previous.url }}{{ anchor }}"
-              class="pagination__item pagination__item--next pagination__item-arrow link motion-reduce"
-              aria-label="{{ 'general.pagination.previous' | t }}"
-            >
-              <span class="svg-wrapper">
-                {{- 'icon-caret.svg' | inline_asset_content -}}
-              </span>
-            </a>
-          </li>
-        {%- endif -%}
+  <div
+    class="flex justify-center items-center my-12"
+    role="navigation"
+    aria-label="{{ 'general.pagination.label' | t }}"
+    x-data="
+      {
+        loading: false,
+        init() {
+          // Handle any specific pagination logic if needed
+        }
+      }
+    "
+  >
+    <nav class="flex items-center gap-3">
+      {%- if paginate.previous -%}
+        <a
+          href="{{ paginate.previous.url }}{{ anchor }}"
+          @click="loading = true"
+          class="inline-flex items-center justify-center size-10 border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+          aria-label="{{ 'general.pagination.previous' | t }}"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" class="w-5 h-5 rotate-180">
+            <path style="fill:currentColor" d="m17.5 5.999-.707.707 5.293 5.293H1v1h21.086l-5.294 5.295.707.707L24 12.499l-6.5-6.5z" data-name="Right"/>
+          </svg>
+        </a>
+      {%- else -%}
+        <span class="inline-flex items-center justify-center size-10 border border-gray-100 text-gray-200 cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" class="w-5 h-5 rotate-180">
+            <path style="fill:currentColor" d="m17.5 5.999-.707.707 5.293 5.293H1v1h21.086l-5.294 5.295.707.707L24 12.499l-6.5-6.5z" data-name="Right"/>
+          </svg>
+        </span>
+      {%- endif -%}
 
-        {%- for part in paginate.parts -%}
-          <li>
-            {%- if part.is_link -%}
-              <a
-                href="{{ part.url }}{{ anchor }}"
-                class="pagination__item link"
-                aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
-              >
-                {{- part.title -}}
-              </a>
-            {%- else -%}
-              {%- if part.title == paginate.current_page -%}
-                <a
-                  role="link"
-                  aria-disabled="true"
-                  class="pagination__item pagination__item--current light"
-                  aria-current="page"
-                  aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
-                >
-                  {{- part.title -}}
-                </a>
-              {%- else -%}
-                <span class="pagination__item">{{ part.title }}</span>
-              {%- endif -%}
-            {%- endif -%}
-          </li>
-        {%- endfor -%}
-
-        {%- if paginate.next -%}
-          <li>
-            <a
-              href="{{ paginate.next.url }}{{ anchor }}"
-              class="pagination__item pagination__item--prev pagination__item-arrow link motion-reduce"
-              aria-label="{{ 'general.pagination.next' | t }}"
+      {%- for part in paginate.parts -%}
+        {%- if part.is_link -%}
+          <a
+            href="{{ part.url }}{{ anchor }}"
+            @click="loading = true"
+            class="inline-flex items-center justify-center size-10 border border-gray-200 text-sm font-medium text-gray-400 hover:border-black hover:text-black transition-colors"
+            aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
+          >
+            {{- part.title -}}
+          </a>
+        {%- else -%}
+          {%- if part.title == paginate.current_page -%}
+            <span
+              class="inline-flex items-center justify-center size-10 border border-black bg-[#1a1a1a] text-white text-sm font-bold"
+              aria-current="page"
+              aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
             >
-              <span class="svg-wrapper">
-                {{- 'icon-caret.svg' | inline_asset_content -}}
-              </span>
-            </a>
-          </li>
+              {{- part.title -}}
+            </span>
+          {%- else -%}
+            <span class="inline-flex items-center justify-center w-10 h-12 text-gray-300 tracking-widest">
+              {{- part.title -}}
+            </span>
+          {%- endif -%}
         {%- endif -%}
-      </ul>
+      {%- endfor -%}
+
+      {%- if paginate.next -%}
+        <a
+          href="{{ paginate.next.url }}{{ anchor }}"
+          @click="loading = true"
+          class="inline-flex items-center justify-center size-10 border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+          aria-label="{{ 'general.pagination.next' | t }}"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" class="w-5 h-5">
+            <path style="fill:currentColor" d="m17.5 5.999-.707.707 5.293 5.293H1v1h21.086l-5.294 5.295.707.707L24 12.499l-6.5-6.5z" data-name="Right"/>
+          </svg>
+        </a>
+      {%- else -%}
+        <span class="inline-flex items-center justify-center size-10 border border-gray-100 text-gray-200 cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" class="w-5 h-5">
+            <path style="fill:currentColor" d="m17.5 5.999-.707.707 5.293 5.293H1v1h21.086l-5.294 5.295.707.707L24 12.499l-6.5-6.5z" data-name="Right"/>
+          </svg>
+        </span>
+      {%- endif -%}
     </nav>
+
+    {%- comment -%} Optional: Loading Overlay if requested in future {%- endcomment -%}
+    <template x-if="loading">
+      <div class="fixed inset-0 bg-white/50 backdrop-blur-[2px] z-9999 flex items-center justify-center transition-opacity duration-300">
+        <div class="w-10 h-10 border-4 border-black/10 border-t-black rounded-full animate-spin"></div>
+      </div>
+    </template>
   </div>
 {%- endif -%}

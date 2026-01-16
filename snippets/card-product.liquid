@@ -39,7 +39,7 @@
   endif
 -%}
 <div
-  class="group/card"
+  class="group/card overflow-hidden"
   x-data="
     {
       currentImage: '{{ initial_img_url }}',
@@ -80,7 +80,7 @@
       </template>
 
       {% if quick_view %}
-        <div class="absolute mb-5 transition-transform duration-300 bottom-0 left-1/2 bg-white px-4 shadow-xl translate-y-30 group-hover/image:translate-y-0 py-2 rounded-full -translate-1/2 text-black ">
+        <div class="absolute bottom-2 md:bottom-5 left-1/2 -translate-x-1/2 translate-y-16 lg:translate-y-30 group-hover/image:translate-y-0 transition-all duration-300 bg-white px-3 py-1.5 md:px-5 md:py-2 rounded-full shadow-xl text-black text-[10px] md:text-sm font-medium whitespace-nowrap">
           Quick View
         </div>
       {% endif %}
@@ -101,22 +101,22 @@
     >
       <a :href="currentUrl" class="flex flex-col gap-0.5">
         {% comment %} Vendor {% endcomment %}
-        <div class="text-[10px] md:text-xs text-orange-600 font-bold uppercase tracking-wider">
+        <div class="text-[9px] md:text-[10px] text-orange-500 font-medium uppercase tracking-widest">
           {{ product.vendor | capitalize }}
         </div>
         {% comment %} Title {% endcomment %}
-        <h3 class="text-sm md:text-base p-0 m-0 tracking-tight font-semibold text-black leading-tight">
+        <h3 class="text-sm md:text-base p-0 m-0 tracking-tight font-medium text-gray-900 leading-tight">
           {% for word in split_title %}
             {{ word | capitalize }}
           {% endfor %}
         </h3>
         {% comment %} Type {% endcomment %}
-        <div class="text-sm md:text-base text-neutral-600">
+        <div class="text-xs md:text-sm text-gray-400 font-normal mt-0.5">
           {{ product.type | capitalize }}
         </div>
         {% assign color_count = product.variants | map: 'option1' | uniq | size %}
         {% if color_count > 1 %}
-          <div class="text-sm md:text-base text-neutral-500">{{ color_count }} Colors</div>
+          <div class="text-xs md:text-sm text-gray-400 font-normal">{{ color_count }} Colors</div>
         {% endif %}
       </a>
     </div>
@@ -162,7 +162,7 @@
                   activeVariantId = {{ matching_variant.id }};
                 "
                 :class="{ 'ring-2 ring-indigo-500': activeVariantId === {{ matching_variant.id }} }"
-                class="size-12 shrink-0 rounded-md border border-gray-300 hover:opacity-60 bg-cover bg-center transition-all"
+                class="size-8 shrink-0 rounded-md border border-gray-300 hover:opacity-60 bg-cover bg-center transition-all"
                 style="background-image: url('{{ matching_variant.featured_image | default: product.featured_image | image_url: width: 50 }}');"
                 aria-label="{{ matching_variant.title }}"
               ></a>
