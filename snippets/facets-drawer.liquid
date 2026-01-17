@@ -43,26 +43,6 @@
 
       <div id="FacetsMobileContent" class="flex-1 overflow-y-auto p-6">
         {%- comment -%} The content here is mirrored via the renderPart function {%- endcomment -%}
-        <div class="mobile-sorting mb-6">
-          <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Sort By</label>
-          <select
-            name="sort_by"
-            form="FacetFiltersForm"
-            @change="filterProducts()"
-            class="w-full border-gray-200 rounded-lg"
-          >
-            {%- for option in results.sort_options -%}
-              <option
-                value="{{ option.value }}"
-                {% if option.value == sort_by %}
-                  selected
-                {% endif %}
-              >
-                {{ option.name }}
-              </option>
-            {%- endfor -%}
-          </select>
-        </div>
       </div>
 
       <div class="p-6 border-t bg-gray-50 flex gap-3">

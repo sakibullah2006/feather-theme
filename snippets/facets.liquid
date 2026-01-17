@@ -13,49 +13,28 @@
     {
       sectionId: '{{ section.id }}',
       openMobile: false,
-      priceTimeout: null,
 
-      init() {
-        window.addEventListener('popstate', (e) => {
-          if (e.state && e.state.path) {
-            this.filterProducts(e.state.path);
-          }
-        });
-
-        // Listen for sort changes from the main collection grid
-        window.addEventListener('filter-sort-trigger', (e) => {
-          if (e.detail && e.detail.url) {
-            this.filterProducts(e.detail.url);
-          }
-        });
-      },
       filterProducts(customUrl = null) {
         const form = document.getElementById('FacetFiltersForm');
 
         if (customUrl) {
-          // Custom URL provided (e.g., from sort or popstate)
           $store.hydrator.fetch(
             customUrl,
             this.sectionId,
             ['ProductGridContainer', 'FacetFiltersForm', 'FacetsMobileContent', 'CollectionProductCount']
           );
         } else {
-          // Use form data
           $store.hydrator.fetchForm(
             form,
             this.sectionId,
             ['ProductGridContainer', 'FacetFiltersForm', 'FacetsMobileContent', 'CollectionProductCount']
           );
         }
-      },
-      handlePriceChange() {
-        clearTimeout(this.priceTimeout);
-        this.priceTimeout = setTimeout(() => this.filterProducts(), 500);
       }
-
     }
   "
   @toggle-filters.window="openMobile = !openMobile"
+  @popstate.window="if ($event.state && $event.state.path) filterProducts($event.state.path)"
 >
   {%- comment -%} Filter Form {%- endcomment -%}
   <form id="FacetFiltersForm" class="facets__form" action="{{ results.url }}" method="get">
@@ -63,6 +42,7 @@
       <input type="hidden" name="q" value="{{ results.terms | escape }}">
       <input name="options[prefix]" type="hidden" value="last">
     {%- endif -%}
+    <input type="hidden" name="sort_by" value="{{ results.sort_by | default: results.default_sort_by }}">
 
     <div class="space-y-8 lg:block" :class="{ 'hidden': openMobile }">
       {%- for filter in results.filters -%}
@@ -173,10 +153,10 @@
                             >
                             <label
                               for="Filter-{{ filter.label | handleize }}-{{ forloop.index }}"
-                              class="flex border rounded-full px-1 py-1 items-center gap-1 cursor-pointer group  {% if value.active %}border-green-400{% else %}border-gray-200{% endif %} hover:text-white transition-colors duration-250"
+                              class="flex border rounded-full px-1 py-1 items-center gap-1  {% if value.count == 0 and value.active == false %}opacity-40 cursor-not-allowed{% else %}cursor-pointer{% endif %} group  {% if value.active %}border-green-400 font-semibold{% else %}border-gray-200{% endif %}  transition-colors duration-250"
                             >
                               <span
-                                class="w-3 h-3 rounded-full transition-all duration-200 border border-transparent"
+                                class="w-3 h-3 rounded-full transition-all duration-200 border border-x"
                                 style="
                                   background-color: {{ value.label | handle }};
                                   {%- if value.swatch.color -%}
@@ -214,9 +194,18 @@
                             >
                             <label
                               for="Filter-{{ filter.label | handleize }}-{{ forloop.index }}"
-                              class="ml-3 text-sm text-gray-600 cursor-pointer transition-colors duration-250 hover:text-black select-none"
+                              class="ml-1 w-full flex items-center justify-between gap-1 text-sm text-gray-600 cursor-pointer transition-colors duration-250 hover:text-black select-none"
                             >
-                              {{ value.label | escape }} ({{ value.count }})
+                              <span>
+                                {{ value.label | escape }}
+                              </span>
+                              <span
+                                {% if value.active %}
+                                  class="font-semibold"
+                                {% endif %}
+                              >
+                                ({{ value.count }})
+                              </span>
                             </label>
                           </li>
                         {%- endfor -%}

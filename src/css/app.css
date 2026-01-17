@@ -56,8 +56,6 @@
     @apply mx-auto w-full max-w-(--page-width) px-(--page-width-margin);
   }
 
-  
-
   .full-width {
     @apply w-screen;
   }
