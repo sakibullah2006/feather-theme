@@ -99,7 +99,7 @@
                           <span class="ease-in-out transition-opacity duration-250 {% if value.active %}opacity-100 font-semibold{% else %}opacity-60 group-hover:opacity-100{% endif %}">
                             {{ value.label | escape }}
                           </span>
-                          <span> ({{ value.count }}) </span>
+                          <span> {{ value.count }} </span>
                         </label>
                       </li>
                     {%- endfor -%}
@@ -204,7 +204,7 @@
                                   class="font-semibold"
                                 {% endif %}
                               >
-                                ({{ value.count }})
+                                {{ value.count }}
                               </span>
                             </label>
                           </li>
