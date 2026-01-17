@@ -34,22 +34,29 @@
 >
   {%- paginate collection.products by section.settings.products_per_page -%}
     <div class="container-lg container-(--page-width) mx-auto px-6" id="CollectionContainer">
-      <div class="flex flex-col md:flex-row justify-between items-center pt-6 pb-4 border-y border-gray-100 mb-6">
+      <div class="flex  flex-col md:flex-row justify-between items-center pt-6 pb-4 border-y border-gray-100 mb-6">
         <div class="flex items-center gap-4">
           <span
             id="CollectionProductCount"
-            class="text-xs font-bold bg-gray-100 px-3 py-1 rounded-full uppercase text-gray-500"
+            class="text-xs font-bold mb-2 md:mb-0 bg-gray-100 px-3 py-1 rounded-full uppercase text-gray-500"
           >
             {{ collection.products_count }} Products
           </span>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center justify-between max-md:w-full gap-4">
+          <button
+            @click="window.dispatchEvent(new CustomEvent('toggle-filters'))"
+            class="md:hidden flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-full text-sm font-bold shadow-sm active:scale-95 transition-transform"
+          >
+            Filter
+          </button>
+
           {%- if section.settings.enable_sorting -%}
             <div class="block relative" x-data="{ open: false }">
               <button
                 @click.throttle.300ms="open = !open"
-                class="flex items-center justify-between gap-3 px-2 w-32 md:w-40  py-2 border border-gray-200 rounded-md text-sm font-medium bg-white hover:border-gray-300 transition-colors"
+                class="flex items-center justify-between gap-3 px-2 w-40  py-2 border border-gray-200 rounded-md text-sm font-medium bg-white hover:border-gray-300 transition-colors"
                 :class="open ? 'border-gray-300 bg-gray-50' : ''"
               >
                 <span class="tracking-widerc text-xs" x-text="sortTitle"> </span>
@@ -90,17 +97,10 @@
               </div>
             </div>
           {%- endif -%}
-
-          <button
-            @click="window.dispatchEvent(new CustomEvent('toggle-filters'))"
-            class="md:hidden flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-full text-sm font-bold shadow-sm active:scale-95 transition-transform"
-          >
-            Filter
-          </button>
         </div>
       </div>
 
-      <div class="flex flex-col lg:flex-row gap-12 items-start">
+      <div class="flex flex-col lg:flex-row gap-12 items-start ">
         {%- if section.settings.enable_filtering -%}
           <aside class="hidden lg:block w-64 shrink-0 sticky top-10">
             {% render 'facets', results: collection, section_id: section.id %}
@@ -131,11 +131,11 @@
                 {%- endfor -%}
                 {% comment %} Clear all filters button  {% endcomment %}
                 {%- if has_active_filters -%}
-                  <li class="active-filter  px-3 py-1.5 bg-red-100 rounded-full text-xs font-medium text-gray-800 transition-colors hover:bg-red-200">
+                  <li class="active-filter   bg-red-100 rounded-full text-xs font-medium text-gray-800 transition-colors hover:bg-red-200">
                     <a
                       href="{{ collection.url }}"
                       @click.prevent="removeFilter('{{ collection.url }}')"
-                      class="active-filter__remove inline-flex items-center gap-2  hover:text-red-800 "
+                      class="active-filter__remove px-3 py-1.5 inline-flex items-center gap-2  hover:text-red-800 "
                       aria-label="Remove All Filters"
                     >
                       <svg
@@ -173,17 +173,13 @@
             {%- if collection.products.size == 0 -%}
               <div class="py-40 text-center bg-gray-50 rounded-3xl">
                 <p class="text-gray-500 mb-6">No products found for these criteria.</p>
-                <a
-                  href="{{ collection.url }}"
-                  @click.prevent="removeFilter('{{ collection.url }}')"
-                  class="inline-block px-10 py-4 bg-black text-white rounded-full font-bold text-sm"
-                  >Clear All</a
-                >
               </div>
             {%- else -%}
               <ul class="grid grid-cols-{{ section.settings.columns_mobile }} md:grid-cols-2 lg:grid-cols-{{ section.settings.columns_desktop }} gap-x-8 gap-y-12">
                 {%- for product in collection.products -%}
-                  <li>{% render 'card-product', product: product, image_ratio: section.settings.image_ratio %}</li>
+                  <li>
+                    {% render 'card-product', product: product, image_ratio: section.settings.image_ratio %}
+                  </li>
                 {%- endfor -%}
               </ul>
 
