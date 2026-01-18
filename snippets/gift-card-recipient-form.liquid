@@ -9,45 +9,47 @@
   {% render 'gift-card-recipient-form', product: product, form: form, section: section %}
 {% endcomment %}
 
-<div class="customer">
+<div class="block w-full mt-4">
   {%- assign gift_card_recipient_control_flag = 'properties[__shopify_send_gift_card_to_recipient]' -%}
   <script src="{{ 'recipient-form.js' | asset_url }}" defer="defer"></script>
   <recipient-form
-    class="recipient-form"
+    class="block w-full"
     data-section-id="{{ section.id }}"
     data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
   >
-    <input
-      id="Recipient-checkbox-{{ section.id }}"
-      type="checkbox"
-      name="{{ gift_card_recipient_control_flag }}"
-      disabled
-    >
-    <label class="recipient-checkbox" for="Recipient-checkbox-{{ section.id }}">
-      {{ 'square.svg' | inline_asset_content }}
-      {{- 'icon-checkmark.svg' | inline_asset_content -}}
-      <span>{{ 'recipient.form.checkbox' | t }}</span>
-    </label>
+    <div class="flex items-center gap-2 mb-4">
+      <input
+        id="Recipient-checkbox-{{ section.id }}"
+        type="checkbox"
+        name="{{ gift_card_recipient_control_flag }}"
+        disabled
+        class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
+      >
+      <label class="text-sm text-gray-900 font-medium cursor-pointer" for="Recipient-checkbox-{{ section.id }}">
+        <span>{{ 'recipient.form.checkbox' | t }}</span>
+      </label>
+    </div>
+
     <div
-      class="product-form__recipient-error-message-wrapper"
+      class="mb-4 hidden"
       role="alert"
       {% unless form.errors %}
         hidden
       {% endunless %}
     >
-      <h2 class="form__message" tabindex="-1" autofocus>
-        {{- 'icon-error.svg' | inline_asset_content -}}
+      <h2 class="text-red-800 text-sm font-bold flex items-center gap-2 mb-2" tabindex="-1" autofocus>
+        <span class="w-4 h-4 text-red-600">{{ 'icon-error.svg' | inline_asset_content }}</span>
         <span class="error-message">{{ 'templates.contact.form.error_heading' | t }}</span>
       </h2>
 
-      <ul>
+      <ul class="list-disc pl-5 text-sm text-red-600 space-y-1">
         {%- if form.errors -%}
           {%- for field in form.errors -%}
             <li>
               {%- if field == 'form' -%}
                 {{ form.errors.messages[field] }}
               {%- else -%}
-                <a href="#Recipient-{{ field }}-{{ section.id }}">
+                <a href="#Recipient-{{ field }}-{{ section.id }}" class="underline hover:no-underline">
                   {{ form.errors.messages[field] }}
                 </a>
               {%- endif -%}
@@ -58,15 +60,25 @@
     </div>
     <p
       id="Recipient-fields-live-region-{{ section.id }}"
-      class="visually-hidden"
+      class="sr-only"
       role="status"
     ></p>
-    <div class="recipient-fields">
-      <hr>
-      <div class="recipient-fields__field">
-        <div class="field">
+    <div class="recipient-fields space-y-4">
+      <hr class="border-gray-200">
+
+      <!-- Email -->
+      <div>
+        <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="Recipient-email-{{ section.id }}">
+            <span class="after:content-['*'] after:ml-0.5 after:text-red-500">
+              {{- 'recipient.form.email_label' | t -}}
+            </span>
+            <span class="sr-only">
+              {{- 'recipient.form.email_label_optional_for_no_js_behavior' | t -}}
+            </span>
+          </label>
           <input
-            class="field__input"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3"
             id="Recipient-email-{{ section.id }}"
             type="email"
             placeholder="{{ 'recipient.form.email' | t }}"
@@ -77,19 +89,13 @@
               aria-describedby="RecipientForm-email-error-{{ section.id }}"
             {% endif %}
           >
-          <label class="field__label" for="Recipient-email-{{ section.id }}">
-            <span class="recipient-email-label required">{{ 'recipient.form.email_label' | t }}</span>
-            <span class="recipient-email-label optional">
-              {{- 'recipient.form.email_label_optional_for_no_js_behavior' | t -}}
-            </span>
-          </label>
         </div>
 
         <div
           id="RecipientForm-email-error-{{ section.id }}"
-          class="form__message{% unless form.errors contains 'email' %} hidden{% endunless %}"
+          class="mt-1 text-sm text-red-600 flex items-center gap-1 {% unless form.errors contains 'email' %} hidden{% endunless %}"
         >
-          {{- 'icon-error.svg' | inline_asset_content -}}
+          <span class="w-4 h-4">{{ 'icon-error.svg' | inline_asset_content }}</span>
           <span class="error-message">
             {%- if form.errors contains 'email' -%}
               {{ form.errors.messages.email }}.
@@ -98,10 +104,14 @@
         </div>
       </div>
 
-      <div class="recipient-fields__field">
-        <div class="field">
+      <!-- Name -->
+      <div>
+        <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="Recipient-name-{{ section.id }}">
+            {{- 'recipient.form.name_label' | t -}}
+          </label>
           <input
-            class="field__input"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3"
             autocomplete="name"
             type="text"
             id="Recipient-name-{{ section.id }}"
@@ -113,16 +123,13 @@
               aria-describedby="RecipientForm-name-error-{{ section.id }}"
             {% endif %}
           >
-          <label class="field__label" for="Recipient-name-{{ section.id }}">
-            {{- 'recipient.form.name_label' | t -}}
-          </label>
         </div>
 
         <div
           id="RecipientForm-name-error-{{ section.id }}"
-          class="form__message{% unless form.errors contains 'name' %} hidden{% endunless %}"
+          class="mt-1 text-sm text-red-600 flex items-center gap-1 {% unless form.errors contains 'name' %} hidden{% endunless %}"
         >
-          {{- 'icon-error.svg' | inline_asset_content -}}
+          <span class="w-4 h-4">{{ 'icon-error.svg' | inline_asset_content }}</span>
           <span class="error-message">
             {%- if form.errors contains 'name' -%}
               {{ form.errors.messages.name }}.
@@ -131,15 +138,19 @@
         </div>
       </div>
 
-      <div class="recipient-fields__field">
+      <!-- Message -->
+      <div>
         {%- assign max_chars_message = 200 -%}
         {%- assign max_chars_message_rendered = 'recipient.form.max_characters' | t: max_chars: max_chars_message -%}
         {%- assign message_label_rendered = 'recipient.form.message_label' | t -%}
-        <div class="field">
+        <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="Recipient-message-{{ section.id }}">
+            {{ message_label_rendered }}
+          </label>
           <textarea
-            rows="10"
+            rows="5"
             id="Recipient-message-{{ section.id }}"
-            class="text-area field__input"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3"
             name="properties[Message]"
             maxlength="{{ max_chars_message }}"
             placeholder="{{ 'recipient.form.message' | t }}"
@@ -149,20 +160,17 @@
               aria-describedby="RecipientForm-message-error-{{ section.id }}"
             {% endif %}
           >{{ form.message }}</textarea>
-          <label class="form__label field__label" for="Recipient-message-{{ section.id }}">
-            {{ message_label_rendered }}
-          </label>
         </div>
 
-        <label class="form__label recipient-form-field-label recipient-form-field-label--space-between">
+        <label class="block text-xs text-gray-500 mt-1 text-right">
           <span>{{ max_chars_message_rendered }}</span>
         </label>
 
         <div
           id="RecipientForm-message-error-{{ section.id }}"
-          class="form__message{% unless form.errors contains 'message' %} hidden{% endunless %}"
+          class="mt-1 text-sm text-red-600 flex items-center gap-1 {% unless form.errors contains 'message' %} hidden{% endunless %}"
         >
-          {{- 'icon-error.svg' | inline_asset_content -}}
+          <span class="w-4 h-4">{{ 'icon-error.svg' | inline_asset_content }}</span>
           <span class="error-message">
             {%- if form.errors contains 'message' -%}
               {{ form.errors.messages.message }}.
@@ -171,10 +179,14 @@
         </div>
       </div>
 
-      <div class="recipient-fields__field">
-        <div class="field">
+      <!-- Date -->
+      <div>
+        <div class="relative">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="Recipient-send-on-{{ section.id }}">
+            {{ 'recipient.form.send_on_label' | t }}
+          </label>
           <input
-            class="field__input text-body"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 placeholder-gray-400"
             autocomplete="send_on"
             type="date"
             id="Recipient-send-on-{{ section.id }}"
@@ -187,16 +199,13 @@
               aria-describedby="RecipientForm-send_on-error-{{ section.id }}"
             {% endif %}
           >
-          <label class="form__label field__label" for="Recipient-send-on-{{ section.id }}">
-            {{ 'recipient.form.send_on_label' | t }}
-          </label>
         </div>
 
         <div
           id="RecipientForm-send_on-error-{{ section.id }}"
-          class="form__message{% unless form.errors contains 'send_on' %} hidden{% endunless %}"
+          class="mt-1 text-sm text-red-600 flex items-center gap-1 {% unless form.errors contains 'send_on' %} hidden{% endunless %}"
         >
-          {{- 'icon-error.svg' | inline_asset_content -}}
+          <span class="w-4 h-4">{{ 'icon-error.svg' | inline_asset_content }}</span>
           <span class="error-message">
             {%- if form.errors contains 'send_on' -%}
               {{ form.errors.messages.send_on }}.

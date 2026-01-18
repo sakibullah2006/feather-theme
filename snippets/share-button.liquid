@@ -12,42 +12,47 @@
 {% endcomment %}
 <script src="{{ 'share.js' | asset_url }}" defer="defer"></script>
 
-<share-button id="Share-{{ section.id }}" class="share-button quick-add-hidden" {{ block.shopify_attributes }}>
-  <button class="share-button__button hidden">
-    <span class="svg-wrapper">{{ 'icon-share.svg' | inline_asset_content }}</span>
-    {{ block.settings.share_label | escape }}
-  </button>
-  <details id="Details-{{ block.id }}-{{ section.id }}">
-    <summary class="share-button__button">
-      <span class="svg-wrapper">{{ 'icon-share.svg' | inline_asset_content }}</span>
+<share-button id="Share-{{ section.id }}" class="block" {{ block.shopify_attributes }}>
+  <button class="hidden"></button>
+  <details id="Details-{{ block.id }}-{{ section.id }}" class="relative group">
+    <summary class="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700 hover:text-black hover:underline">
+      <span class="w-5 h-5">
+        {{ 'icon-share.svg' | inline_asset_content }}
+      </span>
       {{ block.settings.share_label | escape }}
     </summary>
-    <div class="share-button__fallback motion-reduce">
-      <div class="field">
-        <span id="ShareMessage-{{ section.id }}" class="share-button__message hidden" role="status"> </span>
+
+    <div class="absolute bottom-full left-0 mb-2 w-72 bg-white rounded shadow-lg border border-gray-100 p-4 z-50">
+      <div class="field flex gap-2">
+        <label class="sr-only" for="ShareUrl-{{ section.id }}">{{ 'general.share.share_url' | t }}</label>
         <input
           type="text"
-          class="field__input"
+          class="flex-1 w-full rounded-md border-gray-300 text-sm p-2"
           id="ShareUrl-{{ section.id }}"
           value="{{ share_link }}"
           placeholder="{{ 'general.share.share_url' | t }}"
           onclick="this.select();"
           readonly
         >
-        <label class="field__label" for="ShareUrl-{{ section.id }}">{{ 'general.share.share_url' | t }}</label>
+        <button class="share-button__copy p-2 text-gray-500 hover:text-black">
+          <span class="w-5 h-5 block">
+            {{- 'icon-copy.svg' | inline_asset_content -}}
+          </span>
+          <span class="sr-only">{{ 'general.share.copy_to_clipboard' | t }}</span>
+        </button>
       </div>
-      <button class="share-button__close hidden">
-        <span class="svg-wrapper">
+      <button class="share-button__close absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600">
+        <span class="w-4 h-4 block">
           {{- 'icon-close.svg' | inline_asset_content -}}
         </span>
-        <span class="visually-hidden">{{ 'general.share.close' | t }}</span>
+        <span class="sr-only">{{ 'general.share.close' | t }}</span>
       </button>
-      <button class="share-button__copy">
-        <span class="svg-wrapper">
-          {{- 'icon-copy.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.share.copy_to_clipboard' | t }}</span>
-      </button>
+      <span
+        id="ShareMessage-{{ section.id }}"
+        class="share-button__message hidden mt-2 text-xs text-green-600"
+        role="status"
+      >
+      </span>
     </div>
   </details>
 </share-button>

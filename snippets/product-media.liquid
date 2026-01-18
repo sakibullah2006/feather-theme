@@ -16,7 +16,7 @@
 
 {%- if media.media_type == 'image' -%}
   <img
-    class="global-media-settings global-media-settings--no-shadow{% if variant_image %} product__media-item--variant{% endif %}"
+    class="w-full h-full object-cover rounded-lg {% if variant_image %} opacity-100 {% endif %}"
     srcset="
       {%- if media.preview_image.width >= 550 -%}{{ media.preview_image | image_url: width: 550 }} 550w,{%- endif -%}
       {%- if media.preview_image.width >= 1100 -%}{{ media.preview_image | image_url: width: 1100 }} 1100w,{%- endif -%}
@@ -24,8 +24,6 @@
       {%- if media.preview_image.width >= 1680 -%}{{ media.preview_image | image_url: width: 1680 }} 1680w,{%- endif -%}
       {%- if media.preview_image.width >= 2048 -%}{{ media.preview_image | image_url: width: 2048 }} 2048w,{%- endif -%}
       {%- if media.preview_image.width >= 2200 -%}{{ media.preview_image | image_url: width: 2200 }} 2200w,{%- endif -%}
-      {%- if media.preview_image.width >= 2890 -%}{{ media.preview_image | image_url: width: 2890 }} 2890w,{%- endif -%}
-      {%- if media.preview_image.width >= 4096 -%}{{ media.preview_image | image_url: width: 4096 }} 4096w,{%- endif -%}
       {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
     "
     sizes="(min-width: 750px) calc(100vw - 22rem), 1100px"
@@ -38,25 +36,28 @@
   >
 {%- else -%}
   {%- if media.media_type == 'model' -%}
-    <div class="product-media-modal__model" data-media-id="{{ media.id }}">
+    <div class="relative w-full h-full" data-media-id="{{ media.id }}">
       <product-model
-        class="deferred-media media media--transparent global-media-settings global-media-settings--no-shadow"
-        style="padding-top: min(calc(100vh - 12rem), 100%)"
+        class="w-full h-full block"
+        style=""
       >
   {%- else -%}
     <deferred-media
-      class="deferred-media media global-media-settings global-media-settings--no-shadow"
-      style="padding-top: min(calc(100vh - 12rem), {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%)"
+      class="w-full h-full block relative"
       data-media-id="{{ media.id }}"
     >
   {%- endif -%}
 
-  <button id="Deferred-Poster-Modal-{{ media.id }}" class="deferred-media__poster" type="button">
-    <span class="deferred-media__poster-button motion-reduce">
+  <button
+    id="Deferred-Poster-Modal-{{ media.id }}"
+    class="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-50 z-10 group"
+    type="button"
+  >
+    <span class="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center text-black transition-transform group-hover:scale-110">
       {%- if media.media_type == 'model' -%}
-        <span class="svg-wrapper">{{ 'icon-3d-model' | inline_asset_content }}</span>
+        <span class="w-8 h-8 pointer-events-none">{{ 'icon-3d-model.svg' | inline_asset_content }}</span>
       {%- else -%}
-        <span class="svg-wrapper">{{ 'icon-play.svg' | inline_asset_content }}</span>
+        <span class="w-8 h-8 pointer-events-none">{{ 'icon-play.svg' | inline_asset_content }}</span>
       {%- endif -%}
     </span>
     <img
@@ -73,12 +74,13 @@
       width="576"
       height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
       alt="{{ media.preview_image.alt | escape }}"
+      class="absolute inset-0 w-full h-full object-cover -z-10"
     >
   </button>
   <template>
     {%- case media.media_type -%}
       {%- when 'external_video' -%}
-        {%- assign video_class = 'js-' | append: media.host -%}
+        {%- assign video_class = 'w-full h-full object-cover js-' | append: media.host -%}
         {%- if media.host == 'youtube' -%}
           {{
             media
@@ -93,16 +95,25 @@
           }}
         {%- endif -%}
       {%- when 'video' -%}
-        {{ media | media_tag: image_size: '2048x', autoplay: true, loop: loop, controls: true, preload: 'none' }}
+        {{
+          media
+          | media_tag:
+            image_size: '2048x',
+            autoplay: true,
+            loop: loop,
+            controls: true,
+            preload: 'none',
+            class: 'w-full h-full object-cover'
+        }}
       {%- when 'model' -%}
-        {{ media | media_tag: image_size: '2048x', toggleable: true }}
+        {{ media | media_tag: image_size: '2048x', toggleable: true, class: 'w-full h-full object-cover' }}
     {%- endcase -%}
   </template>
 
   {%- if media.media_type == 'model' -%}
     </product-model>
     <button
-      class="button button--full-width product__xr-button"
+      class="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto px-6 py-3 bg-white/90 backdrop-blur rounded-full shadow-lg text-sm font-bold flex items-center gap-2 hover:bg-white transition-all transform hover:scale-105"
       type="button"
       aria-label="{{ 'products.product.xr_button_label' | t }}"
       data-shopify-xr
@@ -110,7 +121,7 @@
       data-shopify-title="title"
       data-shopify-xr-hidden
     >
-      <span class="svg-wrapper">{{ 'icon-3d-model' | inline_asset_content }}</span>
+      <span class="w-5 h-5">{{ 'icon-3d-model.svg' | inline_asset_content }}</span>
       {{ 'products.product.xr_button' | t }}
     </button>
     </div>

@@ -27,64 +27,60 @@
           endif
         endif
       -%}
-      {%- if picker_type == 'swatch' -%}
-        <fieldset class="js product-form__input product-form__input--swatch">
-          <legend class="form__label">
-            {{ option.name }}:
-            <span data-selected-value>
-              {{- option.selected_value -}}
-            </span>
-          </legend>
-          {% render 'product-variant-options',
-            product: product,
-            option: option,
-            block: block,
-            picker_type: picker_type
-          %}
-        </fieldset>
-      {%- elsif picker_type == 'button' -%}
-        <fieldset class="js product-form__input product-form__input--pill">
-          <legend class="form__label">{{ option.name }}</legend>
-          {% render 'product-variant-options',
-            product: product,
-            option: option,
-            block: block,
-            picker_type: picker_type
-          %}
-        </fieldset>
-      {%- else -%}
-        <div class="product-form__input product-form__input--dropdown">
-          <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
-            {{ option.name }}
-          </label>
-          <div class="select">
-            {%- if picker_type == 'swatch_dropdown' -%}
-              <span
-                data-selected-value
-                class="dropdown-swatch"
-              >
-                {% render 'swatch', swatch: option.selected_value.swatch, shape: block.settings.swatch_shape %}
+
+      <div class="mb-6">
+        {%- if picker_type == 'swatch' -%}
+          <fieldset class="flex flex-wrap gap-3">
+            <legend class="block text-sm font-medium text-gray-700 mb-2">
+              {{ option.name }}:
+              <span class="font-normal text-gray-500" data-selected-value>
+                {{- option.selected_value -}}
               </span>
-            {%- endif -%}
-            <select
-              id="Option-{{ section.id }}-{{ forloop.index0 }}"
-              class="select__select"
-              name="options[{{ option.name | escape }}]"
-              form="{{ product_form_id }}"
-            >
-              {% render 'product-variant-options',
-                product: product,
-                option: option,
-                block: block,
-                picker_type: picker_type
-              %}
-            </select>
-            <span class="svg-wrapper">
-              {{- 'icon-caret.svg' | inline_asset_content -}}
-            </span>
+            </legend>
+            {% render 'product-variant-options',
+              product: product,
+              option: option,
+              block: block,
+              picker_type: picker_type
+            %}
+          </fieldset>
+        {%- elsif picker_type == 'button' -%}
+          <fieldset class="flex flex-wrap gap-2">
+            <legend class="block text-sm font-medium text-gray-700 mb-2">{{ option.name }}</legend>
+            {% render 'product-variant-options',
+              product: product,
+              option: option,
+              block: block,
+              picker_type: picker_type
+            %}
+          </fieldset>
+        {%- else -%}
+          <!-- Dropdown Style -->
+          <div class="flex flex-col gap-2">
+            <label class="block text-sm font-medium text-gray-700" for="Option-{{ section.id }}-{{ forloop.index0 }}">
+              {{ option.name }}
+            </label>
+            <div class="relative">
+              {%- if picker_type == 'swatch_dropdown' -%}
+                <!-- Swatch preview in dropdown (simplified for now as just select) -->
+              {%- endif -%}
+              <select
+                id="Option-{{ section.id }}-{{ forloop.index0 }}"
+                class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-black focus:outline-none focus:ring-black sm:text-sm"
+                name="options[{{ option.name | escape }}]"
+                form="{{ product_form_id }}"
+              >
+                {% render 'product-variant-options',
+                  product: product,
+                  option: option,
+                  block: block,
+                  picker_type: picker_type
+                %}
+              </select>
+            </div>
           </div>
-        </div>
-      {%- endif -%}
+        {%- endif -%}
+      </div>
     {%- endfor -%}
 
     <script type="application/json" data-selected-variant>
