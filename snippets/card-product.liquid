@@ -173,6 +173,9 @@
             <p class="text-gray-300 text-lg ">+{{ total_unique_options | minus: 4 }}</p>
           {% endif %}
         </div>
+        {% if color_count > 1 %}
+          <div class="text-xs md:text-sm text-gray-400 font-normal">{{ color_count }} Colors</div>
+        {% endif %}
       </div>
     {% endif %}
   </div>
