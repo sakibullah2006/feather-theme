@@ -5,9 +5,10 @@
   animations for opening and closing the dropdown.
 
   @param {link} link - The parent link object containing child links
+  @param {string} [open_id] - ID of the open dropdown menu
 
   @example
-  {% render 'dropdown-menu', link: link %}
+  {% render 'dropdown-menu', link: link, open_id: link.handle %}
 {% enddoc %}
 
 <div

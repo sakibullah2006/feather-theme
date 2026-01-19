@@ -11,9 +11,10 @@
   @param {string} [content_type] - Type of content to show: 'collection' or 'products'
   @param {collection} [featured_collection] - Collection to feature when content_type is 'collection'
   @param {product[]} [featured_products] - Products to feature (max 3)
+  @param {string} [open_id] - ID of the open dropdown menu
 
   @example
-  {% render 'mega-menu', link: link, show_featured_content: true, content_type: 'collection', featured_collection: collections['featured'] %}
+  {% render 'mega-menu', link: link, show_featured_content: true, content_type: 'collection', featured_collection: collections['featured'], open_id: link.handle %}
 {% enddoc %}
 
 {%- liquid
