@@ -23,7 +23,7 @@
             class="w-full flex items-center justify-between text-left"
             :aria-expanded="openSection === 'contact'"
           >
-            <span class="text-base font-semibold">GET IN TOUCH</span>
+            <span class="text-sm font-bold">GET IN TOUCH</span>
             <svg
               class="w-5 h-5 transition-transform duration-200"
               :class="openSection === 'contact' ? 'rotate-180' : ''"
@@ -110,7 +110,7 @@
               class="w-full flex items-center justify-between text-left"
               :aria-expanded="openSection === 'block-{{ block.id }}'"
             >
-              <span class="text-base font-semibold">{{ block.settings.heading }}</span>
+              <span class="text-sm font-bold">{{ block.settings.heading }}</span>
               <svg
                 class="w-5 h-5 transition-transform duration-200"
                 :class="openSection === 'block-{{ block.id }}' ? 'rotate-180' : ''"
@@ -130,10 +130,13 @@
             {%- case block.type -%}
               {%- when 'footer-menu' -%}
                 {%- if block.settings.menu != blank -%}
-                  <ul class="space-y-2.5">
+                  <ul class="space-y-2">
                     {%- for link in linklists[block.settings.menu].links -%}
                       <li>
-                        <a href="{{ link.url }}" class="text-sm text-gray-600 hover:text-gray-900">
+                        <a
+                          href="{{ link.url }}"
+                          class="text-[13px] text-gray-600 hover:text-gray-900 transition-colors"
+                        >
                           {{ link.title }}
                         </a>
                       </li>
@@ -159,7 +162,7 @@
             class="w-full flex items-center justify-between text-left"
             :aria-expanded="openSection === 'newsletter'"
           >
-            <span class="text-base font-semibold">{{ section.settings.newsletter_heading }}</span>
+            <span class="text-sm font-bold">{{ section.settings.newsletter_heading }}</span>
             <svg
               class="w-5 h-5 transition-transform duration-200"
               :class="openSection === 'newsletter' ? 'rotate-180' : ''"
@@ -176,7 +179,7 @@
             class="pt-4"
           >
             {%- if section.settings.newsletter_description != blank -%}
-              <p class="text-sm text-gray-600 mb-4">{{ section.settings.newsletter_description }}</p>
+              <p class="text-[13px] text-gray-600 mb-4">{{ section.settings.newsletter_description }}</p>
             {%- endif -%}
             {%- form 'customer', id: 'ContactFooterMobile', class: 'space-y-3' -%}
               <input type="hidden" name="contact[tags]" value="newsletter">
@@ -185,7 +188,7 @@
                   type="email"
                   name="contact[email]"
                   placeholder="Your email address"
-                  class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+                  class="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-transparent text-[13px]"
                   autocomplete="email"
                   required
                 >
@@ -214,14 +217,17 @@
     </div>
 
     {%- comment -%} Desktop Layout {%- endcomment -%}
-    <div class="hidden lg:block py-12">
+    <div class="hidden lg:block py-8">
       {%- comment -%} Main Footer Grid - Two Sections {%- endcomment -%}
-      <div class="grid grid-cols-[1fr_auto] gap-12">
+      <div class="grid grid-cols-[1fr_auto] gap-8 ">
         {%- comment -%} LEFT SECTION: Contact Info + Menu Blocks (Yellow) {%- endcomment -%}
-        <div class="grid grid-cols-3 gap-8">
+        {%- liquid
+          assign col_class = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-' | append: section.settings.columns_desktop
+        -%}
+        <div class="grid {{ col_class }} gap-6 ">
           {%- comment -%} Contact Info {%- endcomment -%}
           {%- if section.settings.show_contact_info -%}
-            <div class="space-y-4 overflow-hidden">
+            <div class="space-y-3 overflow-hidden">
               {%- liquid
                 if section.settings.use_theme_logo
                   assign footer_logo = settings.logo
@@ -240,7 +246,7 @@
                   loading="lazy"
                 >
               {%- else -%}
-                <h2 class="text-xl font-bold">{{ shop.name }}</h2>
+                <h2 class="text-lg font-bold">{{ shop.name }}</h2>
               {%- endif -%}
 
               {%- if section.settings.address != blank -%}
@@ -248,7 +254,7 @@
                   <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
-                  <span>{{ section.settings.address }}</span>
+                  <span class="text-[13px]">{{ section.settings.address }}</span>
                 </div>
               {%- endif -%}
 
@@ -257,7 +263,7 @@
                   <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                   </svg>
-                  <a href="tel:{{ section.settings.phone }}" class="hover:text-gray-900">
+                  <a href="tel:{{ section.settings.phone }}" class="hover:text-gray-900 text-[13px]">
                     {{ section.settings.phone }}
                   </a>
                 </div>
@@ -268,7 +274,7 @@
                   <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
-                  <a href="mailto:{{ section.settings.email }}" class="hover:text-gray-900">
+                  <a href="mailto:{{ section.settings.email }}" class="hover:text-gray-900 text-[13px]">
                     {{ section.settings.email }}
                   </a>
                 </div>
@@ -284,9 +290,9 @@
 
           {%- comment -%} Dynamic Blocks (Menus) {%- endcomment -%}
           {%- for block in section.blocks -%}
-            <div class="space-y-4 flex flex-col" {{ block.shopify_attributes }}>
+            <div class="space-y-3 flex flex-col" {{ block.shopify_attributes }}>
               {%- if block.settings.show_heading -%}
-                <h3 class="text-sm font-semibold uppercase tracking-wider">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-900">
                   {{ block.settings.heading }}
                 </h3>
               {%- endif -%}
@@ -295,10 +301,13 @@
                 {%- when 'footer-menu' -%}
                   {%- assign menu = linklists[block.settings.menu] -%}
                   {%- if menu.links.size > 0 -%}
-                    <ul class="space-y-2.5">
+                    <ul class="space-y-2">
                       {%- for link in menu.links -%}
                         <li>
-                          <a href="{{ link.url }}" class="text-sm text-gray-600 hover:text-gray-900">
+                          <a
+                            href="{{ link.url }}"
+                            class="text-[13px] text-gray-600 hover:text-gray-900 transition-colors"
+                          >
                             {{ link.title }}
                           </a>
                         </li>
@@ -307,7 +316,7 @@
                   {%- endif -%}
                 {%- when 'footer-text' -%}
                   {%- if block.settings.content != blank -%}
-                    <div class="prose prose-sm text-gray-600">
+                    <div class="prose prose-sm text-gray-600 text-[13px]">
                       {{ block.settings.content }}
                     </div>
                   {%- endif -%}
@@ -317,11 +326,22 @@
         </div>
 
         {%- comment -%} RIGHT SECTION: Localization + Newsletter (Green) {%- endcomment -%}
-        <div class="flex flex-col gap-6 justify-between min-w-[280px] max-w-[320px]">
+        {%- comment -%} RIGHT SECTION: Localization + Newsletter (Green) {%- endcomment -%}
+        <div class="flex flex-col gap-8 min-w-[280px] max-w-[320px]">
           {%- comment -%} Localization {%- endcomment -%}
-          {%- if section.settings.enable_country_selector or section.settings.enable_language_selector -%}
-            <div class="flex flex-wrap gap-3 justify-end">
-              {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+          {%- liquid
+            assign show_country_selector = false
+            if section.settings.enable_country_selector and localization.available_countries.size > 1
+              assign show_country_selector = true
+            endif
+            assign show_language_selector = false
+            if section.settings.enable_language_selector and localization.available_languages.size > 1
+              assign show_language_selector = true
+            endif
+          -%}
+          {%- if show_country_selector or show_language_selector -%}
+            <div class="flex flex-wrap gap-3">
+              {%- if show_country_selector -%}
                 <localization-form>
                   {%- form 'localization', id: 'FooterCountryForm' -%}
                     {%- render 'country-localization' -%}
@@ -329,7 +349,7 @@
                 </localization-form>
               {%- endif -%}
 
-              {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+              {%- if show_language_selector -%}
                 <localization-form>
                   {%- form 'localization', id: 'FooterLanguageForm' -%}
                     {%- render 'language-localization' -%}
@@ -341,12 +361,12 @@
 
           {%- comment -%} Newsletter {%- endcomment -%}
           {%- if section.settings.newsletter_enable -%}
-            <div class="space-y-4 min-h-2/3">
-              <h3 class="text-sm font-semibold uppercase tracking-wider">
+            <div class="space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-widest text-gray-900">
                 {{ section.settings.newsletter_heading }}
               </h3>
               {%- if section.settings.newsletter_description != blank -%}
-                <p class="text-sm text-gray-600">{{ section.settings.newsletter_description }}</p>
+                <p class="text-[13px] text-gray-600">{{ section.settings.newsletter_description }}</p>
               {%- endif -%}
               {%- form 'customer', id: 'ContactFooter', class: 'space-y-3' -%}
                 <input type="hidden" name="contact[tags]" value="newsletter">
@@ -385,16 +405,16 @@
     </div>
 
     {%- comment -%} Footer Bottom {%- endcomment -%}
-    <div class="border-t border-gray-200 py-6">
+    <div class="border-t border-gray-200 py-4">
       <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
         {%- comment -%} Copyright & Links {%- endcomment -%}
         <div class="flex flex-col lg:flex-row items-center gap-4 text-center lg:text-left">
-          <p class="text-xs text-gray-600">
+          <p class="text-[11px] text-gray-500 uppercase tracking-wide">
             © {{ 'now' | date: '%Y' }}
-            {{ shop.name }}. All Rights Reserved - Developed by The4
+            {{ shop.name }}
           </p>
           {%- if section.settings.show_policy -%}
-            <ul class="flex flex-wrap gap-4 text-xs text-gray-600">
+            <ul class="flex flex-wrap gap-4 text-[11px] text-gray-500 uppercase tracking-wide">
               {%- for policy in shop.policies -%}
                 {%- if policy != blank -%}
                   <li>
@@ -434,6 +454,15 @@
       "id": "show_contact_info",
       "label": "Show contact information",
       "default": true
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "label": "Desktop columns (Left Section)"
     },
     {
       "type": "checkbox",
