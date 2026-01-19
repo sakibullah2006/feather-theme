@@ -48,28 +48,28 @@
     :inert="mobileOpen"
   >
     <div class="flex items-center justify-between h-16 gap-4">
-      <div class="flex items-center gap-3 min-w-30">
+      <div class="flex items-center gap-3 min-w-30 overflow-hidden">
         <a
           href="{{ routes.root_url }}"
-          class="header__logo flex items-center gap-2 focus:outline-none {{ section.settings.logo_icons_size }}"
+          class="header__logo focus:outline-none max-w-{{ section.settings.logo_width }}"
         >
           {%- if settings.logo != blank -%}
             {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
-            {% capture sizes %}(max-width: {{ settings.logo_width | times: 2 }}px) 40vw, {{ settings.logo_width }}px{% endcapture %}
-            {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
+            {%- assign logo_height = section.settings.logo_width | divided_by: section.settings.logo.aspect_ratio -%}
+
             {{
               settings.logo
-              | image_url: width: 800
+              | image_url: width: 500
               | image_tag:
                 class: 'header__logo-image',
-                widths: widths,
-                width: settings.logo_width,
+                widths: '50, 100, 150, 200, 250, 300, 400, 500',
+                height: logo_height,
+                width: section.settings.logo_width,
                 alt: logo_alt,
-                sizes: sizes,
                 preload: true
             }}
           {%- else -%}
-            <span class="text-lg font-semibold tracking-tight">{{ shop.name }}</span>
+            <span class="h2">{{ shop.name }}</span>
           {%- endif -%}
         </a>
       </div>
@@ -286,28 +286,14 @@
     { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
     { "type": "checkbox", "id": "enable_customer_avatar", "default": true, "label": "Show customer avatar" },
     {
-      "type": "select",
-      "id": "logo_icons_size",
-      "label": "Logo size",
-      "default": "size-10",
-      "options": [
-        {
-          "value": "size-10",
-          "label": "Small"
-        },
-        {
-          "value": "size-14",
-          "label": "Medium"
-        },
-        {
-          "value": "size-16",
-          "label": "Large"
-        },
-        {
-          "value": "size-20",
-          "label": "Extra Large"
-        }
-      ]
+      "type": "range",
+      "id": "logo_width",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "default": 70,
+      "unit": "px",
+      "label": "Custom logo width"
     },
     {
       "type": "range",
