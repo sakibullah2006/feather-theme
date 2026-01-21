@@ -1,0 +1,194 @@
+{%- doc -%}
+  Intended for use in a block similar to the text block.
+
+  @param {string} [class] - custom class to define in addition to text-block classes
+  @param {string} [fallback_text] - fallback text if settings.text does not exist
+  @param {object} [block] - The block object
+  @param {string} [width] - width of the text block
+{%- enddoc -%}
+
+{% liquid
+  assign s = block.settings
+  assign plain_text = s.text | strip_newlines | strip_html | strip
+  assign text_width = width | default: s.width
+  assign classes = 'flex flex-col relative overflow-hidden z-10'
+
+  # Width
+  if text_width == 'fit-content'
+    assign classes = classes | append: ' w-fit'
+  elsif text_width == '100%'
+    assign classes = classes | append: ' w-full'
+  endif
+
+  # Max Width
+  case s.max_width
+    when 'narrow'
+      assign classes = classes | append: ' max-w-md'
+    when 'normal'
+      assign classes = classes | append: ' max-w-prose'
+    when 'none'
+      assign classes = classes | append: ' max-w-none'
+  endcase
+
+  # Alignment
+  if text_width == '100%' or s.width == '100%'
+    case s.alignment
+      when 'left'
+        assign classes = classes | append: ' items-start text-start'
+      when 'center'
+        assign classes = classes | append: ' items-center text-center'
+      when 'right'
+        assign classes = classes | append: ' items-end text-end'
+    endcase
+  endif
+
+  # Typography Logic
+  if s.type_preset == 'custom'
+    # Font Family (mapped to custom properties in global context or utility if available)
+    # Since mapped to var, we use style attribute for specific family if not a utility class.
+    # But usually font family is a class. For vars, we'll inline or use a class map.
+    # Assuming standard mapping or inline style for specific var.
+
+    # Size
+    case s.font_size
+      when '0.625rem'
+        assign classes = classes | append: ' text-[0.625rem]'
+      when '0.75rem'
+        assign classes = classes | append: ' text-xs'
+      when '0.875rem'
+        assign classes = classes | append: ' text-sm'
+      when '1rem'
+        assign classes = classes | append: ' text-base'
+      when '1.125rem'
+        assign classes = classes | append: ' text-lg'
+      when '1.25rem'
+        assign classes = classes | append: ' text-xl'
+      when '1.5rem'
+        assign classes = classes | append: ' text-2xl'
+      when '2rem'
+        assign classes = classes | append: ' text-3xl'
+      when '2.5rem'
+        assign classes = classes | append: ' text-4xl'
+      when '3rem'
+        assign classes = classes | append: ' text-5xl'
+      when '3.5rem'
+        assign classes = classes | append: ' text-6xl'
+      when '4.5rem'
+        assign classes = classes | append: ' text-7xl'
+      when '5.5rem'
+        assign classes = classes | append: ' text-8xl'
+      when '7.5rem'
+        assign classes = classes | append: ' text-9xl'
+    endcase
+
+    # Line Height
+    case s.line_height
+      when 'tight'
+        assign classes = classes | append: ' leading-tight'
+      when 'normal'
+        assign classes = classes | append: ' leading-normal'
+      when 'loose'
+        assign classes = classes | append: ' leading-loose'
+    endcase
+
+    # Letter Spacing
+    case s.letter_spacing
+      when 'tight'
+        assign classes = classes | append: ' tracking-tight'
+      when 'normal'
+        assign classes = classes | append: ' tracking-normal'
+      when 'loose'
+        assign classes = classes | append: ' tracking-wide'
+    endcase
+
+    # Casing
+    if s.case == 'uppercase'
+      assign classes = classes | append: ' uppercase'
+    endif
+
+    # Text Wrap
+    case s.wrap
+      when 'pretty'
+        assign classes = classes | append: ' text-pretty'
+      when 'balance'
+        assign classes = classes | append: ' text-balance'
+      when 'nowrap'
+        assign classes = classes | append: ' whitespace-nowrap'
+    endcase
+
+    # Color
+    # We apply color via style attribute if it's a var, or class if standard.
+  else
+    # Presets
+    case s.type_preset
+      when 'h1'
+        assign classes = classes | append: ' text-5xl font-bold leading-tight'
+      when 'h2'
+        assign classes = classes | append: ' text-4xl font-bold leading-tight'
+      when 'h3'
+        assign classes = classes | append: ' text-3xl font-bold leading-snug'
+      when 'h4'
+        assign classes = classes | append: ' text-2xl font-bold leading-snug'
+      when 'h5'
+        assign classes = classes | append: ' text-xl font-semibold leading-normal'
+      when 'h6'
+        assign classes = classes | append: ' text-lg font-semibold leading-normal'
+      when 'paragraph'
+        assign classes = classes | append: ' text-base leading-relaxed max-w-prose'
+      when 'rte'
+        assign classes = classes | append: ' prose max-w-prose'
+    endcase
+  endif
+
+  # Background
+  assign bg_style = ''
+  if s.background
+    assign bg_style = 'background-color: ' | append: s.background_color | append: ';'
+    if s.corner_radius > 0
+      assign bg_style = bg_style | append: ' border-radius: ' | append: s.corner_radius | append: 'px;'
+      # Add padding if background is enabled to prevent text touching edges
+      # We can use style for dynamic padding or generic class
+      assign classes = classes | append: ' p-4'
+    endif
+  endif
+
+  # Padding
+  assign padding_style = 'padding-top: ' | append: s['padding-block-start'] | append: 'px; padding-bottom: ' | append: s['padding-block-end'] | append: 'px; padding-left: ' | append: s['padding-inline-start'] | append: 'px; padding-right: ' | append: s['padding-inline-end'] | append: 'px;'
+
+  # Custom Font Family Variable
+  assign font_style = ''
+  if s.type_preset == 'custom'
+    assign font_style = 'font-family: ' | append: s.font | append: ';'
+  endif
+
+  # Custom Color Variable
+  assign color_style = ''
+  if s.type_preset != 'rte'
+    assign color_style = 'color: ' | append: s.color | append: ';'
+  endif
+
+  # Element Tag
+  assign element = 'div'
+  if s.type_preset == 'rte'
+    # rte-formatter isn't standard HTML/Tailwind, stick to div with prose class
+    assign element = 'div'
+  endif
+%}
+
+{% if fallback_text != blank and plain_text == blank %}
+  <div
+    class="{{ classes }} {{ class }}"
+    style="{{ padding_style }} {{ bg_style }} {{ font_style }} {{ color_style }}"
+    {{ block.shopify_attributes }}
+  >
+    {{ fallback_text }}
+  </div>
+{% elsif plain_text != blank %}
+  <{{ element }}
+    class="{{ classes }} {{ class }}"
+    style="{{ padding_style }} {{ bg_style }} {{ font_style }} {{ color_style }}"
+    {{ block.shopify_attributes }}
+  >
+    {{ s.text }}
+  </{{ element }}>
+{% endif %}

@@ -1,0 +1,597 @@
+{%- liquid
+  assign s = section.settings
+  assign wrapper_classes = 'relative overflow-hidden flex flex-col'
+
+  # Section Height
+  if s.section_height == 'small'
+    assign wrapper_classes = wrapper_classes | append: ' min-h-[400px]'
+  elsif s.section_height == 'medium'
+    assign wrapper_classes = wrapper_classes | append: ' min-h-[600px]'
+  elsif s.section_height == 'large'
+    assign wrapper_classes = wrapper_classes | append: ' min-h-[800px]'
+  elsif s.section_height == 'full-screen'
+    assign wrapper_classes = wrapper_classes | append: ' min-h-screen'
+  endif
+
+  # Custom Height
+  assign custom_height_style = ''
+  if s.section_height == 'custom'
+    assign custom_height_style = 'min-height: ' | append: s.section_height_custom | append: 'vh;'
+  endif
+
+  # Color Scheme
+  assign color_scheme_class = ''
+  if s.color_scheme != blank
+    assign color_scheme_class = ' color-' | append: s.color_scheme | append: ' gradient'
+  endif
+  assign wrapper_classes = wrapper_classes | append: color_scheme_class
+
+  # Border Logic
+  assign border_style = ''
+  if s.border != 'none'
+    assign border_style = 'border: ' | append: s.border_width | append: 'px ' | append: s.border | append: ' rgba(var(--color-foreground), ' | append: s.border_opacity | append: '%);'
+  endif
+
+  if s.border_radius > 0
+    assign border_style = border_style | append: ' border-radius: ' | append: s.border_radius | append: 'px;'
+  endif
+
+  # Padding
+  assign padding_style = 'padding-top: ' | append: s['padding-block-start'] | append: 'px; padding-bottom: ' | append: s['padding-block-end'] | append: 'px;'
+
+  # Content Flex Classes
+  assign content_direction = s.content_direction
+  assign justify_class = ''
+  assign align_class = ''
+
+  # Width Container
+  assign container_class = 'w-full grow flex z-10 relative'
+  if s.section_width == 'page-width'
+    assign container_class = container_class | append: ' container-lg'
+  else
+    assign container_class = container_class | append: ' full-width'
+  endif
+
+  if content_direction == 'row'
+    if s.vertical_on_mobile
+      assign container_class = container_class | append: ' flex-col md:flex-row'
+    else
+      assign container_class = container_class | append: ' flex-row'
+    endif
+
+    # Horizontal Alignment (Main Axis for Row)
+    case s.horizontal_alignment
+      when 'flex-start'
+        assign justify_class = 'justify-start'
+      when 'center'
+        assign justify_class = 'justify-center'
+      when 'flex-end'
+        assign justify_class = 'justify-end'
+      when 'space-between'
+        assign justify_class = 'justify-between'
+    endcase
+
+    # Vertical Alignment (Cross Axis for Row)
+    case s.vertical_alignment
+      when 'flex-start'
+        assign align_class = 'items-start'
+      when 'center'
+        assign align_class = 'items-center'
+      when 'flex-end'
+        if s.align_baseline
+          assign align_class = 'items-baseline'
+        else
+          assign align_class = 'items-end'
+        endif
+    endcase
+
+  else
+    # Column
+    assign container_class = container_class | append: ' flex-col'
+
+    # Vertical Alignment (Main Axis for Column)
+    case s.vertical_alignment_flex_direction_column
+      when 'flex-start'
+        assign justify_class = 'justify-start'
+      when 'center'
+        assign justify_class = 'justify-center'
+      when 'flex-end'
+        assign justify_class = 'justify-end'
+      when 'space-between'
+        assign justify_class = 'justify-between'
+    endcase
+
+    # Horizontal Alignment (Cross Axis for Column)
+    case s.horizontal_alignment_flex_direction_column
+      when 'flex-start'
+        assign align_class = 'items-start'
+      when 'center'
+        assign align_class = 'items-center'
+      when 'flex-end'
+        assign align_class = 'items-end'
+    endcase
+  endif
+
+  # Responsive Alignment Mapping
+  if content_direction == 'row' and s.vertical_on_mobile
+    # Apply desktop classes with md: prefix
+    assign container_class = container_class | append: ' md:' | append: justify_class | append: ' md:' | append: align_class
+
+    # For mobile (column), we might want safe defaults or mapping from s.horizontal_alignment_flex_direction_column if we wanted consistency,
+    # but the custom section logic often defaults to standard flow unless specific mobile settings exist.
+    # The schema doesn't have explicit mobile alignment overrides for 'row-to-col' switch, so we rely on standard behavior or inherit.
+    # We will use the column specific settings if they are relevant, but usually 'vertical_on_mobile' implies a simple stack.
+    # Let's align items to center on mobile if stacking, often looks better, or start.
+    # Reviewing schema: `horizontal_alignment_flex_direction_column` exists only if direction != row.
+    # So if row -> col (mobile), we don't have explicit mobile alignment settings.
+    # Defaulting to 'items-stretch' or 'items-start' usually.
+  else
+    assign container_class = container_class | append: ' ' | append: justify_class | append: ' ' | append: align_class
+  endif
+
+  assign gap_style = 'gap: ' | append: s.gap | append: 'px;'
+-%}
+
+<div class="{{ wrapper_classes }}" style="{{ border_style }} {{ padding_style }} {{ custom_height_style }}">
+  {%- if s.background_media == 'image' and s.background_image != blank -%}
+    {%- assign bg_pos = s.background_image_position -%}
+    {{
+      s.background_image
+      | image_url: width: 3000
+      | image_tag: class: 'absolute inset-0 w-full h-full object-cover z-0', data-position: bg_pos
+    }}
+    {% if bg_pos == 'fit' %}
+      <style>
+        #{{ section.id }} img[data-position="fit"] { object-fit: contain; }
+      </style>
+    {% endif %}
+  {%- elsif s.background_media == 'video' and s.video != blank -%}
+    {{
+      s.video
+      | video_tag:
+        autoplay: true,
+        loop: true,
+        muted: true,
+        controls: false,
+        class: 'absolute inset-0 w-full h-full object-cover z-0'
+    }}
+  {%- endif -%}
+
+  {%- if s.toggle_overlay -%}
+    <div
+      class="absolute inset-0 z-0 pointer-events-none"
+      style="background: {% if s.overlay_style == 'gradient' %}linear-gradient({{ s.gradient_direction }}, {{ s.overlay_color }}, transparent){% else %}{{ s.overlay_color }}{% endif %};"
+    ></div>
+  {%- endif -%}
+
+  <div class="{{ container_class }}" style="{{ gap_style }}">
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Section",
+  "tag": "section",
+  "class": "section-wrapper",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    },
+    {
+      "type": "_divider"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "select",
+      "id": "content_direction",
+      "label": "t:settings.direction",
+      "options": [
+        {
+          "value": "column",
+          "label": "t:options.vertical"
+        },
+        {
+          "value": "row",
+          "label": "t:options.horizontal"
+        }
+      ],
+      "default": "column"
+    },
+    {
+      "type": "checkbox",
+      "id": "vertical_on_mobile",
+      "label": "t:settings.vertical_on_mobile",
+      "default": true,
+      "visible_if": "{{ section.settings.content_direction == 'row' }}"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_alignment",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.right"
+        },
+        {
+          "value": "space-between",
+          "label": "t:options.space_between"
+        }
+      ],
+      "default": "flex-start",
+      "visible_if": "{{ section.settings.content_direction == 'row' }}"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "t:settings.position",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.top"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.bottom"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ section.settings.content_direction == 'row' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "align_baseline",
+      "label": "t:settings.align_baseline",
+      "default": false,
+      "visible_if": "{{ section.settings.vertical_alignment == 'flex-end' }}"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_alignment_flex_direction_column",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.right"
+        }
+      ],
+      "default": "flex-start",
+      "visible_if": "{{ section.settings.content_direction != 'row' }}"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment_flex_direction_column",
+      "label": "t:settings.position",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.top"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.bottom"
+        },
+        {
+          "value": "space-between",
+          "label": "t:options.space_between"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ section.settings.content_direction == 'column' }}"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "t:content.size"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "select",
+      "id": "section_height",
+      "label": "t:settings.height",
+      "options": [
+        {
+          "value": "",
+          "label": "t:options.auto"
+        },
+        {
+          "value": "small",
+          "label": "t:options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:options.large"
+        },
+        {
+          "value": "full-screen",
+          "label": "t:options.full_screen"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": ""
+    },
+    {
+      "type": "range",
+      "id": "section_height_custom",
+      "label": "t:settings.custom_height",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 50,
+      "unit": "%",
+      "visible_if": "{{ section.settings.section_height == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "background_media",
+      "label": "t:settings.background_media",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "image",
+          "label": "t:options.image"
+        },
+        {
+          "value": "video",
+          "label": "t:options.video"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "t:settings.video",
+      "visible_if": "{{ section.settings.background_media == 'video' }}"
+    },
+    {
+      "type": "select",
+      "id": "video_position",
+      "label": "t:settings.video_position",
+      "options": [
+        {
+          "value": "cover",
+          "label": "t:options.cover"
+        },
+        {
+          "value": "contain",
+          "label": "t:options.contain"
+        }
+      ],
+      "default": "cover",
+      "visible_if": "{{ section.settings.background_media == 'video' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:settings.image",
+      "visible_if": "{{ section.settings.background_media == 'image' }}"
+    },
+    {
+      "type": "select",
+      "id": "background_image_position",
+      "label": "t:settings.image_position",
+      "options": [
+        {
+          "value": "cover",
+          "label": "t:options.cover"
+        },
+        {
+          "value": "fit",
+          "label": "t:options.fit"
+        }
+      ],
+      "default": "cover",
+      "visible_if": "{{ section.settings.background_media == 'image' }}"
+    },
+    {
+      "type": "select",
+      "id": "border",
+      "label": "t:settings.borders",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "solid",
+          "label": "t:options.solid"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "unit": "px",
+      "label": "t:settings.border_width",
+      "default": 1,
+      "visible_if": "{{ section.settings.border != 'none' }}"
+    },
+    {
+      "type": "range",
+      "id": "border_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "t:settings.border_opacity",
+      "default": 100,
+      "visible_if": "{{ section.settings.border != 'none' }}"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "t:settings.border_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "toggle_overlay",
+      "label": "t:settings.background_overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "t:settings.overlay_color",
+      "alpha": true,
+      "default": "#00000026",
+      "visible_if": "{{ section.settings.toggle_overlay }}"
+    },
+    {
+      "type": "select",
+      "id": "overlay_style",
+      "label": "t:settings.overlay_style",
+      "options": [
+        {
+          "value": "solid",
+          "label": "t:options.solid"
+        },
+        {
+          "value": "gradient",
+          "label": "t:options.gradient"
+        }
+      ],
+      "default": "solid",
+      "visible_if": "{{ section.settings.toggle_overlay }}"
+    },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "t:settings.gradient_direction",
+      "options": [
+        {
+          "value": "to top",
+          "label": "t:options.up"
+        },
+        {
+          "value": "to bottom",
+          "label": "t:options.down"
+        }
+      ],
+      "default": "to top",
+      "visible_if": "{{ section.settings.toggle_overlay and section.settings.overlay_style == 'gradient' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.custom_section",
+      "category": "t:categories.layout",
+      "settings": {
+        "section_height": "small"
+      }
+    }
+  ]
+}
+{% endschema %}

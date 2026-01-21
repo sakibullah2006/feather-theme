@@ -61,14 +61,21 @@
           }
         }
       },
-      "block_order": ["announcement_nKHbdb", "announcement-bar-0"],
+      "block_order": [
+        "announcement_nKHbdb",
+        "announcement-bar-0"
+      ],
       "settings": {
-        "auto_rotate": false,
+        "auto_rotate": true,
         "change_slides_speed": 5,
         "color_scheme": "scheme-2",
         "show_line_separator": true
       }
     }
   },
-  "order": ["topbar", "header", "announcement-bar"]
+  "order": [
+    "topbar",
+    "header",
+    "announcement-bar"
+  ]
 }

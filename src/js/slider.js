@@ -73,7 +73,4 @@ export default function slider(config = {}) {
   };
 }
 
-// Register as Alpine component
-if (window.Alpine) {
-  window.Alpine.data("slider", slider);
-}
+
