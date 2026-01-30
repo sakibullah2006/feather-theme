@@ -60,7 +60,8 @@
     "names": {
       "group": "Group",
       "section": "Section",
-      "divider": "Divider"
+      "divider": "Divider",
+      "button": "Button"
     },
     "collection_cards": {
       "name": "Collection cards",
@@ -3410,7 +3411,8 @@
     "text": "Text"
   },
   "categories": {
-    "layout": "Layout"
+    "layout": "Layout",
+    "basic": "Basic"
   },
   "content": {
     "layout": "Layout",
@@ -3432,6 +3434,8 @@
     "height": "Height",
     "custom_height": "Custom Height",
     "color_scheme": "Color Scheme",
+    "padding_horizontal": "Horizontal padding",
+    "padding_vertical": "Vertical padding",
     "background_media": "Background Media",
     "video": "Video",
     "video_position": "Video Position",
@@ -3451,6 +3455,9 @@
     "right": "Right",
     "thickness": "Thickness",
     "length": "Length",
+    "label": "Label",
+    "style": "Style",
+    "width_desktop": "Width (Desktop)",
     "link": "Link",
     "open_new_tab": "Open in new tab",
     "inherit_color_scheme": "Inherit Color Scheme"
@@ -3482,6 +3489,9 @@
   },
   "info": {
     "edit_presets_in_theme_settings": "Edit presets in theme settings."
+  },
+  "text_defaults": {
+    "button_label": "Button label"
   },
   "options": {
     "vertical": "Vertical",
@@ -3534,6 +3544,8 @@
     "pretty": "Pretty",
     "balance": "Balance",
     "text": "Text",
-    "link": "Link"
+    "link": "Link",
+    "primary": "Primary",
+    "secondary": "Secondary"
   }
 }

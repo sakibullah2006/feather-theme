@@ -62,7 +62,8 @@
     }
   },
   "names": {
-    "group": "Group"
+    "group": "Group",
+    "button": "Button"
   },
   "newsletter": {
     "label": "Email",
