@@ -1,145 +1,157 @@
-{%- liquid
-  assign current_variant = product.selected_or_first_available_variant
-  assign variant_images = product.images | where: 'attached_to_variant?', true | map: 'src'
--%}
+{% capture media_gallery %}
+  {%- content_for 'block',
+    type: '_product-media-gellary',
+    id: 'media-gallery',
+    closest.product: closest.product
+  -%}
+{% endcapture %}
 
-<section
-  id="MainProduct-{{ section.id }}"
-  class="container-lg section-{{ section.id }}"
-  data-section="{{ section.id }}"
-  x-data="
-    {
+{% capture product_details %}
+  {% content_for 'block',
+    type: '_product-details',
+    id: 'product-details',
+    closest.product: closest.product
+  %}
+{% endcapture %}
 
-    }
+{% capture additional_blocks %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% assign media_class = '' %}
+{% if section.settings.desktop_media_position == 'right' %}
+  {% assign media_class = 'order-2' %}
+{% endif %}
+
+<div
+  style="
+    padding-top: {{ section.settings.padding-block-start }}px;
+    padding-bottom: {{ section.settings.padding-block-end }}px;
   "
-></section>
-
-{%- render 'product-media-modal', variant_images: variant_images -%}
-
-{%- if first_3d_model -%}
-  <script type="application/json" id="ProductJSON-{{ product.id }}">
-    {{ product.media | where: 'media_type', 'model' | json }}
-  </script>
-  <script src="{{ 'product-model.js' | asset_url }}" defer></script>
-{%- endif -%}
+  class="
+    color-{{ section.settings.color_scheme }}
+    {% if section.settings.content_width == 'container' %}container-lg{% else %}full-width{% endif %}
+  "
+>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-[{{ section.settings.gap }}px]">
+    <div class="{{ media_class }} col-span-2">
+      {{ media_gallery }}
+    </div>
+    <div class="col-span-1">
+      {{ product_details }}
+    </div>
+  </div>
+  {{ additional_blocks }}
+</div>
 
 {% schema %}
 {
   "name": "t:sections.main-product.name",
-  "tag": "section",
-  "class": "section",
   "blocks": [
     {
       "type": "@app"
-    },
-    {
-      "type": "custom_liquid",
-      "name": "t:sections.custom-liquid.name",
-      "settings": [
-        {
-          "type": "liquid",
-          "id": "custom_liquid",
-          "label": "t:sections.custom-liquid.settings.custom_liquid.label",
-          "info": "t:sections.custom-liquid.settings.custom_liquid.info"
-        }
-      ]
-    },
-    {
-      "type": "popup",
-      "name": "t:sections.main-product.blocks.popup.name",
-      "settings": [
-        {
-          "type": "text",
-          "id": "text",
-          "default": "t:sections.main-product.blocks.popup.settings.link_label.default",
-          "label": "t:sections.main-product.blocks.popup.settings.link_label.label"
-        },
-        {
-          "id": "page",
-          "type": "page",
-          "label": "t:sections.main-product.blocks.popup.settings.page.label"
-        }
-      ]
-    },
-    {
-      "type": "share",
-      "name": "Share",
-      "settings": [
-        {
-          "type": "text",
-          "id": "share_label",
-          "default": "Share",
-          "label": "Share Label"
-        }
-      ]
     }
   ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
   "settings": [
     {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "container",
+          "label": "Page Width"
+        },
+        {
+          "value": "content-full-width",
+          "label": "full"
+        }
+      ],
+      "default": "container"
+    },
+    {
+      "type": "select",
+      "id": "desktop_media_position",
+      "label": "Desktop media position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
       "type": "checkbox",
-      "id": "enable_sticky_info",
-      "default": true,
-      "label": "t:sections.main-product.settings.enable_sticky_info.label"
+      "id": "equal_columns",
+      "label": "Equal columns",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "limit_details_width",
+      "label": "Limit details width",
+      "default": false,
+      "visible_if": "{{ section.settings.equal_columns }}"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky_add_to_cart",
+      "label": "Enable sticky add to cart",
+      "default": true
     },
     {
       "type": "color_scheme",
       "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
+      "label": "Color scheme",
       "default": "scheme-1"
     },
     {
       "type": "header",
-      "content": "t:sections.main-product.settings.header.content"
-    },
-
-    {
-      "type": "checkbox",
-      "id": "constrain_to_viewport",
-      "default": true,
-      "label": "t:sections.main-product.settings.constrain_to_viewport.label"
-    },
-
-    {
-      "type": "select",
-      "id": "media_position",
-      "options": [
-        {
-          "value": "left",
-          "label": "t:sections.main-product.settings.media_position.options__1.label"
-        },
-        {
-          "value": "right",
-          "label": "t:sections.main-product.settings.media_position.options__2.label"
-        }
-      ],
-      "default": "left",
-      "label": "t:sections.main-product.settings.media_position.label"
-    },
-
-    {
-      "type": "header",
-      "content": "t:sections.all.padding.section_padding_heading"
+      "content": "Padding"
     },
     {
       "type": "range",
-      "id": "padding_top",
+      "id": "padding-block-start",
+      "label": "Top",
       "min": 0,
       "max": 100,
-      "step": 4,
+      "step": 1,
       "unit": "px",
-      "label": "t:sections.all.padding.padding_top",
-      "default": 36
+      "default": 0
     },
     {
       "type": "range",
-      "id": "padding_bottom",
+      "id": "padding-block-end",
+      "label": "Bottom",
       "min": 0,
       "max": 100,
-      "step": 4,
+      "step": 1,
       "unit": "px",
-      "label": "t:sections.all.padding.padding_bottom",
-      "default": 36
+      "default": 0
     }
-  ]
+  ],
+  "presets": []
 }
 {% endschema %}

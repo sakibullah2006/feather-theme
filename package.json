@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev:tailwind": "npx vite build --watch",
-    "dev:shopify": "shopify theme dev",
+    "dev:shopify": "shopify theme dev --environment dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

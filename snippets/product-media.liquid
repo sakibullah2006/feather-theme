@@ -1,18 +1,17 @@
-{% comment %}
-  Renders product media
+{% doc %}
+  @description Renders product media
 
-  Accepts:
-  - media: {Object} Product Media object
-  - loop: {Boolean} Enable video looping (optional)
-  - variant_image: {Boolean} Whether or not media is associated with a variant
+  @param media - {Object} Product Media object
+  @param loop - {Boolean} Enable video looping (optional)
+  @param variant_image - {Boolean} Whether or not media is associated with a variant
 
-  Usage:
+  @example
   {% render 'product-media',
     media: media,
     loop: section.settings.enable_video_looping,
     variant_image: true
   %}
-{% endcomment %}
+{% enddoc %}
 
 {%- if media.media_type == 'image' -%}
   <img

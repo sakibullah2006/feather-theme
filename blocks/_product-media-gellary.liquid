@@ -1,0 +1,23 @@
+<div class="media-gallery">
+  <div class="media-gallery__grid">
+    {% render 'product-media',
+      media: closest.product.media,
+      loop: section.settings.enable_video_looping,
+      variant_image: true
+    %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product Media Gallery",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_video_looping",
+      "label": "Enable video looping",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

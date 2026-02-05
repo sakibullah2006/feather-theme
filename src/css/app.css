@@ -57,7 +57,7 @@
   }
 
   .full-width {
-    @apply w-screen;
+    @apply w-screen px-(--page-width-margin);
   }
 
 }

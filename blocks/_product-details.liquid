@@ -1,0 +1,29 @@
+<div class="product-details" id="product-details-{{ block.id }}" {{ block.shopify_attributes }}>
+  {%- if product != blank -%}
+    <h2 class="product-details__title">{{ product.title }}</h2>
+    <div class="product-details__description">
+      {{ product.description }}
+    </div>
+  {%- else -%}
+    {{ 'onboarding.product_title' | t }}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Product Details",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Product Details"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Details"
+    }
+  ]
+}
+{% endschema %}
