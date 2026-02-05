@@ -30,10 +30,10 @@
   "
   class="
     color-{{ section.settings.color_scheme }}
-    {% if section.settings.content_width == 'container' %}container-lg{% else %}full-width{% endif %}
+    {% if section.settings.content_width == 'container' %}container-lg max-w-5xl{% else %}full-width{% endif %}
   "
 >
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-[{{ section.settings.gap }}px]">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-[20px]">
     <div class="{{ media_class }} col-span-2">
       {{ media_gallery }}
     </div>
@@ -91,19 +91,6 @@
         }
       ],
       "default": "left"
-    },
-    {
-      "type": "checkbox",
-      "id": "equal_columns",
-      "label": "Equal columns",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "limit_details_width",
-      "label": "Limit details width",
-      "default": false,
-      "visible_if": "{{ section.settings.equal_columns }}"
     },
     {
       "type": "range",
