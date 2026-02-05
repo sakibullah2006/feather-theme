@@ -4,6 +4,7 @@
   @param media - {Object} Product Media object
   @param loop - {Boolean} Enable video looping (optional)
   @param variant_image - {Boolean} Whether or not media is associated with a variant
+  @param media_fit - {String} Object fit class (default: 'object-cover')
 
   @example
   {% render 'product-media',
@@ -15,7 +16,7 @@
 
 {%- if media.media_type == 'image' -%}
   <img
-    class="w-full h-full object-cover rounded-lg {% if variant_image %} opacity-100 {% endif %}"
+    class="w-full h-full {{ media_fit | default: 'object-cover' }} rounded-lg {% if variant_image %} opacity-100 {% endif %}"
     srcset="
       {%- if media.preview_image.width >= 550 -%}{{ media.preview_image | image_url: width: 550 }} 550w,{%- endif -%}
       {%- if media.preview_image.width >= 1100 -%}{{ media.preview_image | image_url: width: 1100 }} 1100w,{%- endif -%}
@@ -34,97 +35,92 @@
     data-media-id="{{ media.id }}"
   >
 {%- else -%}
-  {%- if media.media_type == 'model' -%}
-    <div class="relative w-full h-full" data-media-id="{{ media.id }}">
-      <product-model
-        class="w-full h-full block"
-        style=""
-      >
-  {%- else -%}
-    <deferred-media
-      class="w-full h-full block relative"
-      data-media-id="{{ media.id }}"
-    >
-  {%- endif -%}
-
-  <button
-    id="Deferred-Poster-Modal-{{ media.id }}"
-    class="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-50 z-10 group"
-    type="button"
+  <div
+    class="w-full h-full relative block"
+    style="aspect-ratio: {{ media.preview_image.aspect_ratio | default: 1.0 }}"
+    data-media-id="{{ media.id }}"
+    x-data="{ loaded: true }"
   >
-    <span class="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center text-black transition-transform group-hover:scale-110">
-      {%- if media.media_type == 'model' -%}
-        <span class="w-8 h-8 pointer-events-none">{{ 'icon-3d-model.svg' | inline_asset_content }}</span>
-      {%- else -%}
-        <span class="w-8 h-8 pointer-events-none">{{ 'icon-play.svg' | inline_asset_content }}</span>
-      {%- endif -%}
-    </span>
-    <img
-      srcset="
-        {% if media.preview_image.width >= 288 %}{{ media.preview_image | image_url: width: 288 }} 288w,{% endif %}
-        {% if media.preview_image.width >= 576 %}{{ media.preview_image | image_url: width: 576 }} 576w,{% endif %}
-        {% if media.preview_image.width >= 550 %}{{ media.preview_image | image_url: width: 550 }} 550w,{% endif %}
-        {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
-        {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
-      "
-      src="{{ media | image_url: width: 550, height: 550 }}"
-      sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
-      loading="lazy"
-      width="576"
-      height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
-      alt="{{ media.preview_image.alt | escape }}"
-      class="absolute inset-0 w-full h-full object-cover -z-10"
-    >
-  </button>
-  <template>
-    {%- case media.media_type -%}
-      {%- when 'external_video' -%}
-        {%- assign video_class = 'w-full h-full object-cover js-' | append: media.host -%}
-        {%- if media.host == 'youtube' -%}
-          {{
-            media
-            | external_video_url: autoplay: true, loop: loop, playlist: media.external_id
-            | external_video_tag: class: video_class, loading: 'lazy'
-          }}
-        {%- else -%}
-          {{
-            media
-            | external_video_url: autoplay: true, loop: loop
-            | external_video_tag: class: video_class, loading: 'lazy'
-          }}
-        {%- endif -%}
-      {%- when 'video' -%}
-        {{
-          media
-          | media_tag:
-            image_size: '2048x',
-            autoplay: true,
-            loop: loop,
-            controls: true,
-            preload: 'none',
-            class: 'w-full h-full object-cover'
-        }}
-      {%- when 'model' -%}
-        {{ media | media_tag: image_size: '2048x', toggleable: true, class: 'w-full h-full object-cover' }}
-    {%- endcase -%}
-  </template>
-
-  {%- if media.media_type == 'model' -%}
-    </product-model>
     <button
-      class="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto px-6 py-3 bg-white/90 backdrop-blur rounded-full shadow-lg text-sm font-bold flex items-center gap-2 hover:bg-white transition-all transform hover:scale-105"
+      x-show="!loaded"
+      @click="loaded = true"
+      class="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-50 z-10 group cursor-pointer border-none p-0"
       type="button"
-      aria-label="{{ 'products.product.xr_button_label' | t }}"
-      data-shopify-xr
-      data-shopify-model3d-id="{{ media.id }}"
-      data-shopify-title="title"
-      data-shopify-xr-hidden
+      aria-label="{{ 'products.product.media.load_video' | t }}"
     >
-      <span class="w-5 h-5">{{ 'icon-3d-model.svg' | inline_asset_content }}</span>
-      {{ 'products.product.xr_button' | t }}
+      <span class="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center text-black transition-transform group-hover:scale-110">
+        {%- if media.media_type == 'model' -%}
+          {% render 'icon-3d-model', class: 'w-8 h-8 pointer-events-none' %}
+        {%- else -%}
+          {% render 'icon-play', class: 'w-8 h-8 pointer-events-none' %}
+        {%- endif -%}
+      </span>
+      <img
+        srcset="
+          {% if media.preview_image.width >= 288 %}{{ media.preview_image | image_url: width: 288 }} 288w,{% endif %}
+          {% if media.preview_image.width >= 576 %}{{ media.preview_image | image_url: width: 576 }} 576w,{% endif %}
+          {% if media.preview_image.width >= 550 %}{{ media.preview_image | image_url: width: 550 }} 550w,{% endif %}
+          {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
+          {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+        "
+        src="{{ media | image_url: width: 550, height: 550 }}"
+        sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+        loading="lazy"
+        width="576"
+        height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
+        alt="{{ media.preview_image.alt | escape }}"
+        class="absolute inset-0 w-full h-full {{ media_fit | default: 'object-cover' }} -z-10"
+      >
     </button>
-    </div>
-  {%- else -%}
-    </deferred-media>
-  {%- endif -%}
+
+    <template x-if="loaded">
+      <div class="w-full h-full">
+        {%- case media.media_type -%}
+          {%- when 'external_video' -%}
+            {%- assign video_class = 'w-full h-full ' | append: media_fit | default: 'object-cover' | append: ' js-' | append: media.host -%}
+            {%- if media.host == 'youtube' -%}
+              {{
+                media
+                | external_video_url: autoplay: true, loop: loop, playlist: media.external_id
+                | external_video_tag: class: video_class, loading: 'lazy'
+              }}
+            {%- else -%}
+              {{
+                media
+                | external_video_url: autoplay: true, loop: loop
+                | external_video_tag: class: video_class, loading: 'lazy'
+              }}
+            {%- endif -%}
+          {%- when 'video' -%}
+            {{
+              media
+              | media_tag:
+                image_size: '2048x',
+                autoplay: true,
+                loop: loop,
+                controls: false,
+                preload: 'none',
+                class: 'w-full h-full ' | append: media_fit | default: 'object-cover'
+            }}
+          {%- when 'model' -%}
+            {{ media | media_tag: image_size: '2048x', toggleable: true, class: 'w-full h-full ' | append: media_fit | default: 'object-cover' }}
+        {%- endcase -%}
+      </div>
+    </template>
+
+    {%- if media.media_type == 'model' -%}
+      <button
+        class="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto px-6 py-3 bg-white/90 backdrop-blur rounded-full shadow-lg text-sm font-bold flex items-center gap-2 hover:bg-white transition-all transform hover:scale-105"
+        type="button"
+        aria-label="{{ 'products.product.xr_button_label' | t }}"
+        data-shopify-xr
+        data-shopify-model3d-id="{{ media.id }}"
+        data-shopify-title="title"
+        data-shopify-xr-hidden
+      >
+        {% render 'icon-3d-model', class: 'w-5 h-5' %}
+        {{ 'products.product.xr_button' | t }}
+      </button>
+    {%- endif -%}
+  </div>
 {%- endif -%}

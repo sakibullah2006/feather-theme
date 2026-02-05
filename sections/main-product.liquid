@@ -1,3 +1,8 @@
+<script type="application/ld+json">
+  {{ closest.product | structured_data }}
+</script>
+
+
 {% capture media_gallery %}
   {%- content_for 'block',
     type: '_product-media-gellary',
@@ -29,15 +34,16 @@
     padding-bottom: {{ section.settings.padding-block-end }}px;
   "
   class="
+    px-4
     color-{{ section.settings.color_scheme }}
-    {% if section.settings.content_width == 'container' %}container-lg max-w-6xl{% else %}full-width{% endif %}
+    {% if section.settings.content_width == 'container' %}container-lg max-w-5xl{% else %}full-width{% endif %}
   "
 >
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-[20px]">
-    <div class="{{ media_class }} col-span-2">
+  <div class="grid grid-cols-1 md:grid-cols-5" style="gap: {{ section.settings.gap }}px;">
+    <div class="{{ media_class }} col-span-3">
       {{ media_gallery }}
     </div>
-    <div class="col-span-1">
+    <div class="col-span-2">
       {{ product_details }}
     </div>
   </div>
@@ -100,7 +106,7 @@
       "max": 48,
       "step": 4,
       "unit": "px",
-      "default": 16
+      "default": 20
     },
     {
       "type": "checkbox",
@@ -126,7 +132,7 @@
       "max": 100,
       "step": 1,
       "unit": "px",
-      "default": 0
+      "default": 40
     },
     {
       "type": "range",
@@ -136,7 +142,7 @@
       "max": 100,
       "step": 1,
       "unit": "px",
-      "default": 0
+      "default": 40
     }
   ],
   "presets": []

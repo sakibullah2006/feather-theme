@@ -1,0 +1,35 @@
+{%- comment -%}
+  @description
+  Renders a chevron (caret) icon.
+
+  @param direction {string} The direction the chevron points ('up', 'down', 'left', 'right'). Default: 'down'.
+  @param class {string} Additional CSS classes.
+{%- endcomment -%}
+
+{%- liquid
+  assign rotate_class = ''
+  case direction
+    when 'up'
+      assign rotate_class = 'rotate-90'
+    when 'left'
+      assign rotate_class = 'rotate-180'
+    when 'right'
+      assign rotate_class = '-rotate-180'
+    else
+      assign rotate_class = ''
+  endcase
+-%}
+
+<span class="inline-block transform {{ rotate_class }} {{ class }}">
+  <svg
+    aria-hidden="true"
+    focusable="false"
+    viewBox="0 0 24 24"
+    role="img"
+    width="100%"
+    height="100%"
+    fill="none"
+  >
+    <path stroke="currentColor" stroke-width="1.5" d="M15.525 18.966L8.558 12l6.967-6.967"></path>
+  </svg>
+</span>

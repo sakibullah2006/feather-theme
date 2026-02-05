@@ -1,184 +1,122 @@
-<style>
-  .media-gallery-container {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 20px;
-  }
-
-  .media-gallery__thumbnails {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    scrollbar-width: none; /* Firefox */
-  }
-
-  .media-gallery__thumbnails::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
-
-  .thumbnail-list {
-    display: flex;
-    gap: 10px;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-  }
-
-  .media-gallery__viewer {
-    flex: 1;
-    width: 100%;
-  }
-
-  .media-gallery__thumbnails .thumbnail-list__item {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-  }
-
-  .thumbnail-button {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 2px solid transparent;
-    background: none;
-    cursor: pointer;
-    overflow: hidden;
-    border-radius: 4px;
-    display: block;
-    position: relative;
-  }
-
-  .thumbnail-button[aria-current='true'] {
-    border-color: black;
-  }
-
-  .thumbnail-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .product__media-list {
-    display: block; /* Stacked by default, but we hide inactive */
-    padding: 0;
-    margin: 0;
-    list-style: none;
-  }
-
-  .product__media-item {
-    display: none;
-    width: 100%;
-  }
-
-  .product__media-item.is-active {
-    display: block;
-  }
-
-  .product__media-item video,
-  .product__media-item img,
-  .product__media-item iframe,
-  .product__media-item model-viewer {
-    width: 100%;
-    height: auto;
-    display: block;
-    aspect-ratio: 1 / 1; /* Or generic aspect ratio */
-    object-fit: cover;
-    border-radius: 8px; /* Optional rounded corners */
-  }
-
-  /* Desktop Styles */
-  @media (min-width: 768px) {
-    .media-gallery-container {
-      flex-direction: row;
-      align-items: flex-start;
+<div
+  class="flex justify-end flex-col-reverse gap-4 md:flex-row md:items-end max-w-[480px]"
+  x-data="
+    {
+      activeMedia: {{ product.selected_or_first_available_variant.featured_media.id | default: product.media.first.id | default: 'null' }},
+      mediaIds: [{% for media in product.media %}{{ media.id }}{% unless forloop.last %},{% endunless %}{% endfor %}],
+      next() {
+          let index = this.mediaIds.indexOf(this.activeMedia);
+          if (index < this.mediaIds.length - 1) {
+              this.activeMedia = this.mediaIds[index + 1];
+          } else {
+              this.activeMedia = this.mediaIds[0];
+          }
+      },
+      prev() {
+          let index = this.mediaIds.indexOf(this.activeMedia);
+          if (index > 0) {
+              this.activeMedia = this.mediaIds[index - 1];
+          } else {
+              this.activeMedia = this.mediaIds[this.mediaIds.length - 1];
+          }
+      }
     }
-
-    .media-gallery__thumbnails {
-      flex-direction: column;
-      width: 80px;
-      height: 500px; /* Limit height to allow scrolling if many images */
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    .thumbnail-list {
-      flex-direction: column;
-    }
-
-    .media-gallery__thumbnails .thumbnail-list__item {
-      width: 100%;
-      height: 80px;
-    }
-  }
-</style>
-
-<media-gallery
-  id="MediaGallery-{{ section.id }}"
-  role="region"
-  class="media-gallery-container"
-  aria-label="{{ 'products.product.media.gallery_viewer' | t }}"
-  data-desktop-layout="thumbnail_left"
+  "
 >
-  <div id="GalleryStatus-{{ section.id }}" class="visually-hidden" role="status"></div>
-
   <!-- Thumbnails (Left on Desktop, Bottom on Mobile) -->
-  <div class="media-gallery__thumbnails">
-    <slider-component id="GalleryThumbnails-{{ section.id }}" class="thumbnail-slider">
-      <ul
-        class="thumbnail-list"
-        role="list"
-      >
-        {%- for media in closest.product.media -%}
-          <li
-            id="Slide-Thumbnails-{{ section.id }}-{{ forloop.index }}"
-            class="thumbnail-list__item slider__slide{% if media.id == closest.product.selected_or_first_available_variant.featured_media.id %} is-active{% endif %}"
-            data-target="{{ media.id }}"
-            data-media-position="{{ media.position }}"
-          >
-            <button
-              class="thumbnail-button"
-              aria-label="{{ 'products.product.media.load_image' | t: index: forloop.index }}"
-              {% if media.id == closest.product.selected_or_first_available_variant.featured_media.id %}
-                aria-current="true"
-              {% endif %}
-              aria-controls="GalleryViewer-{{ section.id }}"
-              aria-describedby="Thumbnail-{{ section.id }}-{{ forloop.index }}"
-            >
-              <img
-                id="Thumbnail-{{ section.id }}-{{ forloop.index }}"
-                src="{{ media | image_url: width: 100, height: 100, crop: 'center' }}"
-                alt="{{ media.alt | escape }}"
-                loading="lazy"
-                class="thumbnail-image"
-                width="100"
-                height="100"
-              >
-            </button>
-          </li>
-        {%- endfor -%}
-      </ul>
-    </slider-component>
-  </div>
-
-  <!-- Main Viewer (Right on Desktop) -->
-  <div id="GalleryViewer-{{ section.id }}" class="media-gallery__viewer">
+  <div class="flex gap-3 overflow-x-auto  md:flex-col md:w-20 md:h-[600px] md:overflow-y-auto md:overflow-x-hidden [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
     <ul
-      class="product__media-list"
+      class="flex gap-3 p-0 m-0 list-none md:flex-col"
       role="list"
     >
-      {%- for media in closest.product.media -%}
+      {%- for media in product.media -%}
         <li
-          id="Slide-{{ section.id }}-{{ media.id }}"
-          class="product__media-item{% if media.id == closest.product.selected_or_first_available_variant.featured_media.id %} is-active{% endif %}"
-          data-media-id="{{ media.id }}"
+          class="w-[60px] h-[60px] shrink-0 md:w-full md:h-20"
         >
-          {% render 'product-media', media: media, loop: section.settings.enable_video_looping, variant_image: false %}
+          <button
+            class="w-full h-full p-0 bg-gray-100 cursor-pointer overflow-hidden rounded-lg block relative transition-all duration-200"
+            @mouseover="activeMedia={{ media.id }}"
+            aria-label="{{ 'products.product.media.load_image' | t: index: forloop.index }}"
+            :aria-current="activeMedia === {{ media.id }}"
+          >
+            <img
+              src="{{ media | image_url: width: 150, height: 150, crop: 'center' }}"
+
+              alt="{{ media.alt | escape }}"
+              loading="lazy"
+              class="w-full -z-1 h-full object-cover block transition-opacity duration-300"
+              width="150"
+              height="150"
+            >
+            {% comment %} image light overlay for active image {% endcomment %}
+            <div class="absolute inset-0  transition-opacity duration-300 pointer-events-none" style="background-color: rgba(0,0,0,0.25);" :class="activeMedia === {{ media.id }} ? 'opacity-100' : 'opacity-0'"></div>
+
+            {% comment %} on the bottom-left side {% endcomment %}
+            {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+              <span class="absolute top-1/2 left-[calc(90%)] -translate-x-1/2 -translate-y-1/2   text-white">
+                <span class="block h-6 w-6">
+                  {{ 'icon-play.svg' | inline_asset_content }}
+                </span>
+              </span>
+            {%- elsif media.media_type == 'model' -%}
+              <span class="absolute top-2.5 right-2 p-0.5 text-black">
+                <span class="block w-4 h-4">
+                  {{ 'icon-3d-model.svg' | inline_asset_content }}
+                </span>
+              </span>
+            {%- endif -%}
+          </button>
         </li>
       {%- endfor -%}
     </ul>
   </div>
-</media-gallery>
+
+  <!-- Main Viewer (Right on Desktop) -->
+  <div class="flex-1  w-full min-w-0 relative group">
+    <div class="relative w-full rounded-2xl overflow-hidden bg-gray-100  mx-auto">
+      <ul
+        class="block p-0 m-0 list-none"
+        role="list"
+      >
+        {%- for media in product.media -%}
+          <li
+            x-show="activeMedia === {{ media.id }}"
+            class="w-full"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+          >
+            {% render 'product-media',
+              media: media,
+              loop: block.settings.enable_video_looping,
+              variant_image: false,
+              media_fit: 'object-contain'
+            %}
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <!-- Navigation Arrows -->
+      <div class="absolute bottom-6 right-6 flex gap-3 z-10">
+        <button
+          @click="prev()"
+          class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-black hover:bg-gray-50 transition-colors"
+          aria-label="Previous slide"
+        >
+          {% render 'icon-chevron', class: 'w-5 h-5 -ml-0.5' %}
+        </button>
+        <button
+          @click="next()"
+          class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-black hover:bg-gray-50 transition-colors"
+          aria-label="Next slide"
+        >
+          {% render 'icon-chevron', direction: 'right', class: 'w-5 h-5 -mr-0.5' %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  
 
 <script src="{{ 'media-gallery.js' | asset_url }}" defer="defer"></script>
 

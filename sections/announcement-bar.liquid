@@ -39,17 +39,7 @@
                 class="hidden lg:flex absolute -left-10 top-1/2 -translate-y-1/2 z-10 size-10 items-center justify-center hover:bg-current/7 rounded-full transition-opacity"
                 aria-label="Previous"
               >
-                <svg
-                  aria-hidden="true"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                  role="img"
-                  width="24px"
-                  height="24px"
-                  fill="none"
-                >
-                  <path stroke="currentColor" stroke-width="1.5" d="M15.525 18.966L8.558 12l6.967-6.967"></path>
-                </svg>
+                {% render 'icon-chevron', direction: 'left', class: 'w-6 h-6' %}
               </button>
 
               <div x-ref="slides" class="min-h-10 flex items-center justify-center">
@@ -88,17 +78,7 @@
                 class="hidden lg:flex absolute -right-10 top-1/2 -translate-y-1/2 z-10 size-10 items-center justify-center  hover:bg-current/7 rounded-full transition-opacity"
                 aria-label="Next"
               >
-                <svg
-                  aria-hidden="true"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                  role="img"
-                  width="24px"
-                  height="24px"
-                  fill="none"
-                >
-                  <path stroke="currentColor" stroke-width="1.5" d="M8.474 18.966L15.44 12 8.474 5.033"></path>
-                </svg>
+                {% render 'icon-chevron', direction: 'right', class: 'w-6 h-6' %}
               </button>
             </div>
           {%- endif -%}
@@ -119,7 +99,7 @@
       "type": "checkbox",
       "id": "auto_rotate",
       "label": "Auto-rotate announcements",
-      "default": true   
+      "default": true
     },
     {
       "type": "range",
